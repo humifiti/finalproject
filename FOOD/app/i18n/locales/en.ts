@@ -17,4 +17,10 @@ export default {
   please_login: 'Please login again',
   cancel: 'Cancel',
   confirm: 'Confirm',
+  note_input_phone: 'Please enter your registered phone number',
+  send: 'Send',
+  note_otp: 'Enter the OTP that was sent to your phone number',
+  send_back_otp: 'I don’t recevie a code! Please resend',
+  expire: 'Expired time: ',
+  change_password: 'Change Password',
 }

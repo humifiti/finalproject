@@ -1,26 +1,16 @@
-import React, { Component, useRef, useState, memo } from 'react'
+import R from '@app/assets/R'
+import RNButton from '@app/components/RNButton'
+import RNTextInput from '@app/components/RNTextInput'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { colors } from '@app/theme'
+import React, { memo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import {
-  View,
-  Text,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
-  Alert,
 } from 'react-native'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { colors } from '@app/theme'
-import R from '@app/assets/R'
-import RNTextInput from '@app/components/RNTextInput'
-import { CheckBox } from 'react-native-elements'
-import FstImage from '@app/components/FstImage/FstImage'
-import RNButton from '@app/components/RNButton'
-import isEqual from 'react-fast-compare'
-import NavigationUtil from '@app/navigation/NavigationUtil'
-import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
 
 const ChangePassWordScreenComponent = () => {
   const [password, setPassword] = useState('')
@@ -76,9 +66,7 @@ const ChangePassWordScreenComponent = () => {
               value={confirmPassword}
               placeholder={R.strings().input_confirm_password}
               keyboardType="default"
-              onChangeText={confirmPassword => {
-                setConfirmPassword(confirmPassword)
-              }}
+              onChangeText={setConfirmPassword}
               placeholderTextColor={colors.colorDefault.placeHolder}
               isRequire
               valueType="password"
@@ -128,11 +116,4 @@ const styles = StyleSheet.create({
 
 const ChangePassWordScreen = memo(ChangePassWordScreenComponent, isEqual)
 
-const mapStateToProps = (state: any) => ({})
-
-const mapDispatchToProps = {}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChangePassWordScreen)
+export default ChangePassWordScreen

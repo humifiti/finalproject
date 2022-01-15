@@ -36,7 +36,7 @@ export default {
   address_input_tax_code: 'Nhập địa chỉ mã số thuế',
   forgot_password: 'Quên mật khẩu',
   note_input_phone: 'Vui lòng nhập số điện thoại mà bạn đã đăng ký',
-  note_otp: 'Nhập mã OTP đã được gửi về email của bạn',
+  note_otp: 'Nhập mã OTP đã được gửi về số điện thoại của bạn',
   send: 'Gửi',
   expire: 'Hết hạn sau: ',
   send_back_otp: 'Gửi lại OTP',
