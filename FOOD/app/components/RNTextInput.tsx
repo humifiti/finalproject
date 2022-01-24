@@ -105,7 +105,7 @@ class RNTextInput extends Component<Props<any>, State> {
     } else {
       if ((this.state.isFocus || isCall) && isRequire) {
         this.setState({
-          errorMessage: (title || placeholder) + ' is being plank',
+          errorMessage: (title || placeholder) + ' is being blank',
         })
       }
     }
