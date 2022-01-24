@@ -1,23 +1,20 @@
-import React, { Component, useRef, useState, memo } from 'react'
+import R from '@app/assets/R'
+import RNButton from '@app/components/RNButton'
+import RNTextInput from '@app/components/RNTextInput'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
+import { colors } from '@app/theme'
+import React, { memo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import {
-  View,
-  Text,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
 } from 'react-native'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
 
-import R from '@app/assets/R'
-import { colors } from '@app/theme'
-import RNTextInput from '@app/components/RNTextInput'
-import RNButton from '@app/components/RNButton'
-import isEqual from 'react-fast-compare'
-import NavigationUtil from '@app/navigation/NavigationUtil'
-import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
 const ForgotPasswordScreenComponent = () => {
   const [phone, setPhone] = useState('')
   const phoneRef = useRef<RNTextInput>(null)
@@ -93,11 +90,5 @@ const styles = StyleSheet.create({
   },
 })
 const ForgotPasswordScreen = memo(ForgotPasswordScreenComponent, isEqual)
-const mapStateToProps = (state: any) => ({})
 
-const mapDispatchToProps = {}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ForgotPasswordScreen)
+export default ForgotPasswordScreen

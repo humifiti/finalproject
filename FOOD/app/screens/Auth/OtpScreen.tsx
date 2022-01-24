@@ -1,28 +1,23 @@
-import React, { Component, useRef, useState, memo } from 'react'
+import R from '@app/assets/R'
+import { Otp } from '@app/components/Otp/Otp'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
+import { colors } from '@app/theme'
+import React, { memo, useState, useRef } from 'react'
+import isEqual from 'react-fast-compare'
 import {
-  View,
-  Text,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
-  TextInput,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import OTPInputView from '@twotalltotems/react-native-otp-input'
-import R from '@app/assets/R'
-import { colors } from '@app/theme'
-import RNTextInput from '@app/components/RNTextInput'
-import RNButton from '@app/components/RNButton'
-import isEqual from 'react-fast-compare'
-import NavigationUtil from '@app/navigation/NavigationUtil'
-import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
 const OtpScreenComponent = () => {
-  const [phone, setPhone] = useState('')
-  const phoneRef = useRef<RNTextInput>(null)
-  const phoneInputRef = useRef<TextInput>(null)
+  //const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [otp, setOtp] = useState<string>('')
+  const isClearText = useRef<boolean>(false)
   return (
     <ScreenWrapper
       back
@@ -31,6 +26,7 @@ const OtpScreenComponent = () => {
       backgroundHeader="white"
       forceInset={['left']}
       titleHeader={'OTP'}
+      dialogLoading={false}
       children={
         <KeyboardAvoidingView
           enabled
@@ -42,33 +38,39 @@ const OtpScreenComponent = () => {
             style={styles.v_scroll}
           >
             <Text style={styles.v_note} children={R.strings().note_otp} />
-            <Text style={styles.v_email} children={'ducthinhhp99@gmail.com'} />
-            <OTPInputView
-              style={styles.v_otp}
-              codeInputFieldStyle={styles.underlineStyleBase}
-              codeInputHighlightStyle={styles.underlineStyleHighLighted}
-              pinCount={4}
+
+            <Otp
+              onOtpValid={(text: string) => {
+                if (text !== otp) {
+                  setOtp(text)
+                }
+                NavigationUtil.navigate(SCREEN_ROUTER_AUTH.CHANGE_PASSWORD)
+              }}
+              isClearText={isClearText.current}
+              onOtpInValid={setOtp}
+              textStyle={styles.text_otp}
+              wrapInputStyle={styles.v_otp}
+              length={6}
+              containerStyle={styles.v_contain_otp}
             />
             <View style={styles.v_countDown}>
               <Text
                 style={styles.txt_countDown}
-                children={R.strings().expire}
-              />
-              <Text
-                style={[styles.txt_countDown, { color: colors.primary }]}
-                children={'03:12'}
+                children={`${R.strings().expire} 00:00`}
               />
             </View>
-            <RNButton
-              style={styles.v_button}
-              onPress={() => {
-                NavigationUtil.navigate(SCREEN_ROUTER_AUTH.CHANGE_PASSWORD)
-              }}
-              title={R.strings().confirm}
-            />
-            <TouchableOpacity>
+
+            <TouchableOpacity
+            //  onPress={sentOtpPhone }
+            // disabled={timeCountDown > 0 ? true : false}
+            >
               <Text
-                style={styles.txt_sendOtp}
+                style={[
+                  styles.txt_sendOtp,
+                  {
+                    color: colors.primary,
+                  },
+                ]}
                 children={R.strings().send_back_otp}
               />
             </TouchableOpacity>
@@ -78,6 +80,28 @@ const OtpScreenComponent = () => {
     />
   )
 }
+
+// const RenderCountUp = ({ timeCountDown }: { timeCountDown: number }) => {
+//   const minutes = `0${Math.floor((timeCountDown % 3600) / 60)}`
+//   const seconds = `0${(timeCountDown % 3600) % 60}`
+//   const formatMinutes = minutes.substr(minutes.length - 2, 2)
+//   const formatSeconds = seconds.substr(seconds.length - 2, 2)
+//   return (
+//     <>
+//       {timeCountDown > 0 ? (
+//         <Text
+//           style={{ color: colors.primary, fontFamily: R.fonts.san_regular }}
+//           children={`${formatMinutes}:${formatSeconds}`}
+//         />
+//       ) : (
+//         <Text
+//           style={{ color: colors.primary, fontFamily: R.fonts.san_regular }}
+//           children={`00:00`}
+//         />
+//       )}
+//     </>
+//   )
+// }
 
 const styles = StyleSheet.create({
   v_keyboard: {
@@ -113,25 +137,19 @@ const styles = StyleSheet.create({
   v_textInput: {
     marginBottom: 40,
   },
+  v_contain_otp: {
+    marginBottom: 44,
+  },
   v_otp: {
-    width: '80%',
-    height: 60,
-    marginBottom: 60,
-    alignSelf: 'center',
+    //marginRight: 10,
   },
-  underlineStyleBase: {
-    width: 40,
-    height: 65,
-    borderWidth: 0,
-    borderBottomWidth: 1,
-    color: 'black',
-  },
-  underlineStyleHighLighted: {
-    borderColor: colors.label,
-    color: colors.label,
+  text_otp: {
+    fontSize: 40,
+    color: colors.colorDefault.text,
+    fontFamily: R.fonts.san_regular,
   },
   v_countDown: {
-    marginBottom: 20,
+    marginBottom: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -148,8 +166,5 @@ const styles = StyleSheet.create({
   },
 })
 const OtpScreen = memo(OtpScreenComponent, isEqual)
-const mapStateToProps = (state: any) => ({})
 
-const mapDispatchToProps = {}
-
-export default connect(mapStateToProps, mapDispatchToProps)(OtpScreen)
+export default OtpScreen
