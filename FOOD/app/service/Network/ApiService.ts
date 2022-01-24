@@ -1,10 +1,12 @@
 import R from '@app/assets/R'
+import reactotron from '@app/config/ReactotronConfig'
+import { API_STATUS, SCREEN_ROUTER } from '@app/constant/Constant'
+import { ResponseType } from '@app/service/Network/model/ApiResponse'
+import store from '@app/store'
+import { showMessages } from '@app/utils/AlertHelper'
+import AsyncStoreService from '../AsyncStorage/AsyncStorageService'
 // import NavigationUtil from '@app/navigation/NavigationUtil';
 const BASE_URL_DEV = 'http://3.1.13.10:8700'
-import { showMessages } from '@app/utils/AlertHelper'
-import AsyncStorage from '@react-native-community/async-storage'
-import { ResponseType } from '@app/service/Network/model/ApiResponse'
-import AsyncStoreService from '../AsyncStorage/AsyncStorageService'
 
 const createAPI = () => {
   const APIInstant = require('axios').default.create()
@@ -16,17 +18,29 @@ const createAPI = () => {
     return config
   }, Promise.reject)
 
-  APIInstant.interceptors.response.use((response: ResponseType<any>) => {
-    const data = response.data
-    if (data && data.code === 403) {
-      showMessages(R.strings().notification, R.strings().re_login)
-      AsyncStorage.setItem('token', '').then(() => {
-        // NavigationUtil.navigate('Auth');
-      })
-    } else if (data && data.status !== 1)
-      showMessages(R.strings().notification, data.message)
-    return response
-  })
+  APIInstant.interceptors.response.use(
+    (response: ResponseType<any>) => {
+      return response
+    },
+    async (error: any) => {
+      reactotron.log!('error', error)
+      if (error.message === 'Network Error') return
+
+      const data = await error?.response?.data
+      if (data && data.code === API_STATUS.UNAUTHORIZED) {
+        // showMessages(R.strings().notification, R.strings().re_login)
+        AsyncStoreService.putToken('').then(() => {
+          store.dispatch({
+            type: 'switch/navigateSwitch',
+            payload: SCREEN_ROUTER.AUTH,
+          })
+        })
+      } else if (data && data.code !== API_STATUS.UNAUTHORIZED) {
+        showMessages(R.strings().notification, data.message)
+      }
+      return Promise.reject(error)
+    }
+  )
   return APIInstant
 }
 
