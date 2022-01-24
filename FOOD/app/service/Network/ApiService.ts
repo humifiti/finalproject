@@ -6,7 +6,7 @@ import store from '@app/store'
 import { showMessages } from '@app/utils/AlertHelper'
 import AsyncStoreService from '../AsyncStorage/AsyncStorageService'
 // import NavigationUtil from '@app/navigation/NavigationUtil';
-const BASE_URL_DEV = 'http://3.1.13.10:8700'
+const BASE_URL_DEV = 'https://foodlive.tech'
 
 const createAPI = () => {
   const APIInstant = require('axios').default.create()

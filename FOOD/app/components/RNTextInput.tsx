@@ -18,7 +18,7 @@ import { Source } from 'react-native-fast-image'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 const EMAIL_REGEX =
   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-const PASSWORD_REGEX = /^.{6,25}$/
+const PASSWORD_REGEX = /^.{8,25}$/
 const NAME_REGEX = /^[a-zA-Z0-9]*[a-zA-Z]\S*$/
 const ADDRESS_REGEX = /([a-zA-Z]+)([a-z0-9A-Z])*/
 //([a-zA-z])*
@@ -117,7 +117,7 @@ class RNTextInput extends Component<Props<any>, State> {
   }
 
   validatePhone = (value: string | undefined) => {
-    if (`${value}`.length < 10 || `${value}`.length > 11) {
+    if (`${value}`.length < 10) {
       this.setState({ errorMessage: 'Phone is invalid' })
     } else this.setState({ errorMessage: '' })
   }

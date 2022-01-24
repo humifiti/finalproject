@@ -1,3 +1,9 @@
+import R from '@app/assets/R'
+import Card from '@app/components/Card'
+import FstImage from '@app/components/FstImage/FstImage'
+import RNButton from '@app/components/RNButton'
+import RNTextInput from '@app/components/RNTextInput'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
 import {
   APP_SLICE,
   SCREEN_ROUTER,
@@ -5,48 +11,73 @@ import {
 } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
-import React, { useState, useRef } from 'react'
+import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
+import { colors } from '@app/theme'
+import React, { useRef, useState } from 'react'
 import {
-  Button,
-  Text,
-  View,
+  Dimensions,
+  ImageBackground,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
-  Dimensions,
-  ImageBackground,
-  TouchableOpacity,
-  Platform,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native'
-import R from '@app/assets/R'
-import { connect } from 'react-redux'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import FstImage from '@app/components/FstImage/FstImage'
 import { getStatusBarHeight, isIphoneX } from 'react-native-iphone-x-helper'
-import Card from '@app/components/Card'
-import RNTextInput from '@app/components/RNTextInput'
-import { colors } from '@app/theme'
-import { CheckBox } from 'react-native-elements'
-import RNButton from '@app/components/RNButton'
-const { width, height } = Dimensions.get('window')
+import { connect, useDispatch } from 'react-redux'
+import AuthApi from './api/AuthApi'
+const { height } = Dimensions.get('window')
 
 const LoginScreen = (props: any) => {
+  const dispatch = useDispatch()
   const [isDialogLoading, setDialogLoading] = useState(false)
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-
+  const [phone, setPhone] = useState<string>('')
   const [password, setPassword] = useState('')
-  const [isCheck, setIsCheck] = useState(false)
-  const nameRef = useRef<RNTextInput>(null)
-  const nameInputRef = useRef<TextInput>(null)
-  const emailRef = useRef<RNTextInput>(null)
-  const emailInputRef = useRef<TextInput>(null)
+  const phoneRef = useRef<RNTextInput>(null)
+  const phoneInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
 
-  const requestLogin = () => {
-    props?.navigateSwitch(SCREEN_ROUTER.MAIN)
+  const requestLogin = async () => {
+    let isValid = true
+    let inputRef = null
+    if (!phone || phone?.trim() === '' || phone.length < 10) {
+      phoneRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = phoneInputRef
+    }
+
+    if (
+      !password ||
+      password?.trim() === '' ||
+      password?.length < 6 ||
+      password?.length > 55
+    ) {
+      passRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = passInputRef
+    }
+
+    if (!isValid) {
+      if (inputRef) inputRef.current?.focus()
+      return
+    }
+    const payload = {
+      phone: phone,
+      password: password,
+    }
+
+    try {
+      setDialogLoading(true)
+      const res = await AuthApi.login(payload)
+      setDialogLoading(false)
+      await AsyncStorageService.putToken(res?.data?.token)
+      dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
+    } catch (error) {
+      setDialogLoading(false)
+    }
   }
 
   return (
@@ -100,33 +131,18 @@ const LoginScreen = (props: any) => {
                         children={R.strings().login_with_your_account}
                       />
                       <RNTextInput
-                        autoCapitalize="none"
-                        ref={nameRef}
-                        refs={nameInputRef}
-                        title={R.strings().full_name}
-                        value={name}
-                        placeholder={R.strings().input_full_name}
-                        keyboardType="default"
-                        onChangeText={setName}
-                        maxLength={45}
+                        ref={phoneRef}
+                        refs={phoneInputRef}
+                        title={R.strings().phone}
+                        value={phone}
+                        placeholder={R.strings().input_phone}
+                        keyboardType="number-pad"
+                        onChangeText={setPhone}
                         placeholderTextColor={colors.colorDefault.placeHolder}
-                        valueType="name"
+                        valueType="phone"
                         isRequire
                       />
 
-                      <RNTextInput
-                        ref={emailRef}
-                        refs={emailInputRef}
-                        title={R.strings().email}
-                        value={email}
-                        placeholder={R.strings().input_email}
-                        keyboardType="email-address"
-                        onChangeText={setEmail}
-                        maxLength={225}
-                        placeholderTextColor={colors.colorDefault.placeHolder}
-                        valueType="email"
-                        isRequire
-                      />
                       <RNTextInput
                         autoCapitalize="none"
                         maxLength={16}
@@ -286,14 +302,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const mapStateToProps = (state: any) => ({
-  switch: state[APP_SLICE.SWITCH].switch,
-})
-
-const mapDispatchToProps = {
-  navigateSwitch,
-}
-export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen)
+export default LoginScreen
 
 {
   /* <View

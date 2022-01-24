@@ -1,60 +1,132 @@
-import React, { Component, useRef, useState, memo } from 'react'
+import R from '@app/assets/R'
+import RNButton from '@app/components/RNButton'
+import RNTextInput from '@app/components/RNTextInput'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { colors } from '@app/theme'
+import { showMessages } from '@app/utils/AlertHelper'
+import React, { memo, useRef, useState } from 'react'
+import isEqual from 'react-fast-compare'
 import {
-  View,
-  Text,
+  Alert,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
-  Alert,
 } from 'react-native'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { colors } from '@app/theme'
-import R from '@app/assets/R'
-import RNTextInput from '@app/components/RNTextInput'
-import { CheckBox } from 'react-native-elements'
-import FstImage from '@app/components/FstImage/FstImage'
-import RNButton from '@app/components/RNButton'
-import isEqual from 'react-fast-compare'
-import NavigationUtil from '@app/navigation/NavigationUtil'
-import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
+import AuthApi from './api/AuthApi'
+import { useDispatch } from 'react-redux'
+import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
+import { SCREEN_ROUTER } from '@app/constant/Constant'
 
 const RegisterScreenComponent = () => {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [companyName, setCompanyName] = useState('')
-  const [taxCode, setTaxCode] = useState('')
-  const [addressTaxCode, setAddressTaxCode] = useState('')
-  const [isCheck, setIsCheck] = useState(false)
-  const nameRef = useRef<RNTextInput>(null)
-  const nameInputRef = useRef<TextInput>(null)
+  const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [firstName, setFirstName] = useState<string>('')
+  const [lastName, setLastName] = useState<string>('')
+  const [phone, setPhone] = useState<string>('')
+  // const [email, setEmail] = useState('')
+  const [password, setPassword] = useState<string>('')
+  const [confirmPassword, setConfirmPassword] = useState<string>('')
+  const firstNameRef = useRef<RNTextInput>(null)
+  const firstNameInputRef = useRef<TextInput>(null)
+  const lastNameRef = useRef<RNTextInput>(null)
+  const lastNameInputRef = useRef<TextInput>(null)
   const phoneRef = useRef<RNTextInput>(null)
   const phoneInputRef = useRef<TextInput>(null)
-  const emailRef = useRef<RNTextInput>(null)
-  const emailInputRef = useRef<TextInput>(null)
+  // const emailRef = useRef<RNTextInput>(null)
+  // const emailInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
   const confirmPassRef = useRef<RNTextInput>(null)
   const confirmPassInputRef = useRef<TextInput>(null)
-  const companyNameRef = useRef<RNTextInput>(null)
-  const companyNameInputRef = useRef<TextInput>(null)
-  const taxCodeRef = useRef<RNTextInput>(null)
-  const taxCodeInputRef = useRef<TextInput>(null)
-  const addressTaxCodeRef = useRef<RNTextInput>(null)
-  const addressTaxCodeInputRef = useRef<TextInput>(null)
+
+  const handleRegister = async () => {
+    let isValid = true
+    let inputRef = null
+
+    if (!firstName || firstName?.trim() === '') {
+      firstNameRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = firstNameInputRef
+    }
+
+    if (!lastName || lastName?.trim() === '') {
+      lastNameRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = lastNameInputRef
+    }
+
+    if (!phone || phone?.trim() === '' || phone.length < 10) {
+      phoneRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = phoneInputRef
+    }
+
+    if (password.trim() === '' || password.length < 8 || password.length > 55) {
+      passRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = passInputRef
+    }
+    if (
+      confirmPassword.trim() === '' ||
+      confirmPassword.length < 8 ||
+      password.length > 55
+    ) {
+      confirmPassRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = confirmPassInputRef
+    }
+
+    if (confirmPassword !== password) {
+      showMessages(
+        R.strings().notification,
+        R.strings().confirm_password_not_success
+      )
+      confirmPassInputRef.current?.focus()
+      return
+    }
+
+    if (!isValid) {
+      if (inputRef) inputRef.current?.focus()
+      return
+    }
+
+    const payload = {
+      first_name: firstName,
+      last_name: lastName,
+      phone: phone,
+      password: password,
+    }
+
+    try {
+      setIsLoading(true)
+      await AuthApi.register(payload)
+      setIsLoading(false)
+      dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
+    } catch (error) {
+      setIsLoading(false)
+    }
+    // callAPIHook({
+    //   API: AuthApi.updateRegister,
+    //   useLoading: setDialogLoading,
+    //   payload: payload,
+    //   typeLoading: 'isLoading',
+    //   onSuccess: async (_res: any) => {
+    //     props?.navigateSwitch(SCREEN_ROUTER.MAIN)
+    //   },
+    //   onError: (_err: any) => {},
+    //   onFinally: () => {},
+    // })
+  }
+
   return (
     <ScreenWrapper
       unsafe
       color="black"
       backgroundHeader="white"
       back
+      dialogLoading={isLoading}
       forceInset={['left']}
       titleHeader={R.strings().register}
       children={
@@ -71,13 +143,27 @@ const RegisterScreenComponent = () => {
           >
             <RNTextInput
               autoCapitalize="none"
-              ref={nameRef}
-              refs={nameInputRef}
-              title={R.strings().full_name}
-              value={name}
-              placeholder={R.strings().input_full_name}
+              ref={firstNameRef}
+              refs={firstNameInputRef}
+              title={R.strings().first_name}
+              value={firstName}
+              placeholder={R.strings().input_first_name}
               keyboardType="default"
-              onChangeText={setName}
+              onChangeText={setFirstName}
+              maxLength={45}
+              placeholderTextColor={colors.colorDefault.placeHolder}
+              valueType="name"
+              isRequire
+            />
+            <RNTextInput
+              autoCapitalize="none"
+              ref={lastNameRef}
+              refs={lastNameInputRef}
+              title={R.strings().last_name}
+              value={lastName}
+              placeholder={R.strings().input_last_name}
+              keyboardType="default"
+              onChangeText={setLastName}
               maxLength={45}
               placeholderTextColor={colors.colorDefault.placeHolder}
               valueType="name"
@@ -95,7 +181,7 @@ const RegisterScreenComponent = () => {
               valueType="phone"
               isRequire
             />
-            <RNTextInput
+            {/* <RNTextInput
               ref={emailRef}
               refs={emailInputRef}
               title={R.strings().email}
@@ -107,7 +193,7 @@ const RegisterScreenComponent = () => {
               placeholderTextColor={colors.colorDefault.placeHolder}
               valueType="email"
               isRequire
-            />
+            /> */}
 
             <RNTextInput
               autoCapitalize="none"
@@ -142,7 +228,7 @@ const RegisterScreenComponent = () => {
               valueType="password"
             />
 
-            <RNButton onPress={() => {}} title={R.strings().register} />
+            <RNButton onPress={handleRegister} title={R.strings().register} />
           </ScrollView>
         </KeyboardAvoidingView>
       }
