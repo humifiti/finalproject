@@ -41,6 +41,7 @@ const SCREEN_ROUTER = {
   SPLASH: 'SPLASH',
   AUTH: 'AUTH',
   MAIN: 'MAIN',
+  MAIN_ADMIN: 'MAIN_ADMIN',
 }
 
 export const ROOT_STACK = {

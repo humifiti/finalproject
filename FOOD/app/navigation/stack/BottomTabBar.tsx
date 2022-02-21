@@ -1,10 +1,8 @@
+/* eslint-disable no-shadow */
+/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import { SCREEN_ROUTER, SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
-import AccountScreen from '@app/screens/App/Account/AccountScreen'
-import CartScreen from '@app/screens/App/Cart/CartScreen'
-import HomeScreen from '@app/screens/App/Home/HomeScreen'
-import ProductScreen from '@app/screens/App/Product/ProductScreen'
 import { colors } from '@app/theme'
 import { showConfirm } from '@app/utils/AlertHelper'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -12,15 +10,18 @@ import {
   BottomTabBar,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs'
-import { createStackNavigator } from '@react-navigation/stack'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { getBottomSpace } from 'react-native-iphone-x-helper'
 import { useDispatch } from 'react-redux'
 import reactotron from 'reactotron-react-native'
-import StackBottomBar from './StackBottomBar'
+import AccountScreen from '@app/screens/App/Account/AccountScreen'
+import CartScreen from '@app/screens/App/Cart/CartScreen'
+import HomeScreen from '@app/screens/App/Home/HomeScreen'
+import ProductScreen from '@app/screens/App/Product/ProductScreen'
 const Tab = createBottomTabNavigator()
 const Stack = createStackNavigator()
 const {
@@ -34,6 +35,24 @@ const {
 } = R.images
 
 const { HOME, PRODUCT, CART, USER } = SCREEN_ROUTER_APP
+
+const mainTabCustomer = {
+  [HOME]: HomeScreen,
+  [PRODUCT]: ProductScreen,
+  [CART]: CartScreen,
+  [USER]: AccountScreen,
+}
+
+const mainTabAdmin = {
+  [HOME]: HomeScreen,
+  [PRODUCT]: ProductScreen,
+  [CART]: CartScreen,
+}
+
+const MAIN_TAB = {
+  [SCREEN_ROUTER.MAIN]: mainTabCustomer,
+  [SCREEN_ROUTER.MAIN_ADMIN]: mainTabAdmin,
+}
 
 const tabBarIcon = {
   [HOME]: ic_home,
@@ -66,7 +85,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const MainTab = (route: any) => {
+export const MainTab = (route: any) => {
   const dispatch = useDispatch()
   const routeName = getFocusedRouteNameFromRoute(route)
   reactotron.log!('routeName', routeName)
@@ -121,7 +140,11 @@ const MainTab = (route: any) => {
               {...props}
               onPress={async e => {
                 const token = await AsyncStorage.getItem('token')
-                if (route.name === SCREEN_ROUTER_APP.USER && !token) {
+                if (
+                  (route.name === SCREEN_ROUTER_APP.USER ||
+                    route.name === SCREEN_ROUTER_APP.PRODUCT) &&
+                  !token
+                ) {
                   showConfirm(
                     R.strings().notification,
                     R.strings().please_login,
@@ -138,19 +161,23 @@ const MainTab = (route: any) => {
         },
       })}
     >
-      {Object.keys(StackBottomBar).map((elem, index) => (
-        <Tab.Screen key={index} name={elem} component={StackBottomBar[elem]} />
+      {Object.keys(MAIN_TAB[route.route?.name]).map((elem, index) => (
+        <Tab.Screen
+          key={index}
+          name={elem}
+          component={MAIN_TAB[route.route?.name][elem]}
+        />
       ))}
     </Tab.Navigator>
   )
 }
-export const StackMainScreen = () => (
-  <Stack.Navigator
-    headerMode="none"
-    children={
-      <>
-        <Stack.Screen name={SCREEN_ROUTER.MAIN} component={MainTab} />
-      </>
-    }
-  />
-)
+// export const StackMainScreen = () => (
+//   <Stack.Navigator
+//     headerMode="none"
+//     children={
+//       <>
+//         <Stack.Screen name={SCREEN_ROUTER.MAIN} component={MainTab} />
+//       </>
+//     }
+//   />
+// )

@@ -4,11 +4,7 @@ import FstImage from '@app/components/FstImage/FstImage'
 import RNButton from '@app/components/RNButton'
 import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import {
-  APP_SLICE,
-  SCREEN_ROUTER,
-  SCREEN_ROUTER_AUTH,
-} from '@app/constant/Constant'
+import { SCREEN_ROUTER, SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
 import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
@@ -26,7 +22,7 @@ import {
   View,
 } from 'react-native'
 import { getStatusBarHeight, isIphoneX } from 'react-native-iphone-x-helper'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import AuthApi from './api/AuthApi'
 const { height } = Dimensions.get('window')
 
@@ -102,18 +98,6 @@ const LoginScreen = (props: any) => {
                 source={R.images.ic_backgroud}
                 style={styles.img_bg}
                 resizeMode="cover"
-                children={
-                  <TouchableOpacity
-                    onPress={requestLogin}
-                    children={
-                      <FstImage
-                        source={R.images.img_back}
-                        style={styles.ic_back}
-                        resizeMode="contain"
-                      />
-                    }
-                  />
-                }
               />
               <Card style={styles.root_view}>
                 <View
@@ -195,6 +179,19 @@ const LoginScreen = (props: any) => {
                 />
               </Card>
             </ScrollView>
+            <TouchableOpacity
+              style={styles.v_back}
+              onPress={() => {
+                dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
+              }}
+              children={
+                <FstImage
+                  source={R.images.img_back}
+                  style={styles.ic_back}
+                  resizeMode="contain"
+                />
+              }
+            />
           </KeyboardAvoidingView>
         </>
       }
@@ -203,6 +200,13 @@ const LoginScreen = (props: any) => {
 }
 
 const styles = StyleSheet.create({
+  v_back: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    top: isIphoneX() ? getStatusBarHeight() + 20 : getStatusBarHeight() + 10,
+    left: 15,
+  },
   v_keyboard: {
     flex: 1,
     backgroundColor: 'white',
@@ -216,11 +220,8 @@ const styles = StyleSheet.create({
     height: height / 2.4,
   },
   ic_back: {
-    position: 'absolute',
     width: 40,
     height: 40,
-    top: isIphoneX() ? getStatusBarHeight() + 20 : getStatusBarHeight(),
-    left: 25,
   },
   root_view: {
     paddingHorizontal: 30,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     marginTop: -60,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 15,
+    marginBottom: 200,
   },
   txt_question: {
     fontFamily: R.fonts.san_regular,
@@ -303,35 +304,3 @@ const styles = StyleSheet.create({
 })
 
 export default LoginScreen
-
-{
-  /* <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        paddingTop: 100,
-        backgroundColor: '#336',
-      }}
-    >
-      <Text style={{ marginBottom: 100 }}>Login</Text>
-      <Button
-        onPress={() => {
-          requestLogin()
-        }}
-        title="Login to continue"
-      />
-      <Button
-        onPress={() => {
-          NavigationUtil.navigate(SCREEN_ROUTER_AUTH.REGISTER)
-        }}
-        title="Register"
-      />
-
-      <Button
-        onPress={() => {
-          NavigationUtil.navigate(SCREEN_ROUTER_AUTH.FORGOT_PASSWORD)
-        }}
-        title="Quên mật khẩu"
-      />
-    </View> */
-}

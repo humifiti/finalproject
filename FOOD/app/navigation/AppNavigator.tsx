@@ -1,41 +1,39 @@
 import { APP_SLICE, ROOT_STACK, SCREEN_ROUTER } from '@app/constant/Constant'
 import SplashScreen from '@app/screens/SplashScreen'
 import { NavigationContainer } from '@react-navigation/native'
-import {
-  createStackNavigator,
-  StackHeaderInterpolationProps,
-} from '@react-navigation/stack'
+import { createStackNavigator } from '@react-navigation/stack'
 import React, { memo } from 'react'
 import isEqual from 'react-fast-compare'
 import { connect } from 'react-redux'
 import NavigationUtil from './NavigationUtil'
+import { MainTab } from './stack/BottomTabBar'
 import { StackAppCustomerScreen } from './stack/StackApp'
+import { StackAppAdminScreen } from './stack/StackAppAdmin'
 import { StackAuthScreen } from './stack/StackAuth'
-import { StackMainScreen } from './stack/BottomTabBar'
 
 const RootStack = createStackNavigator()
-const screenOptions = {
-  headerShown: false,
-  cardStyle: { backgroundColor: 'transparent' },
-  cardOverlayEnabled: true,
-  cardStyleInterpolator: ({
-    current: { progress },
-  }: StackHeaderInterpolationProps & any) => ({
-    cardStyle: {
-      opacity: progress.interpolate({
-        inputRange: [0, 0.5, 0.9, 1],
-        outputRange: [0, 0.25, 0.7, 1],
-      }),
-    },
-    overlayStyle: {
-      opacity: progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 0.5],
-        extrapolate: 'clamp',
-      }),
-    },
-  }),
-}
+// const screenOptions = {
+//   headerShown: false,
+//   cardStyle: { backgroundColor: 'transparent' },
+//   cardOverlayEnabled: true,
+//   cardStyleInterpolator: ({
+//     current: { progress },
+//   }: StackHeaderInterpolationProps & any) => ({
+//     cardStyle: {
+//       opacity: progress.interpolate({
+//         inputRange: [0, 0.5, 0.9, 1],
+//         outputRange: [0, 0.25, 0.7, 1],
+//       }),
+//     },
+//     overlayStyle: {
+//       opacity: progress.interpolate({
+//         inputRange: [0, 1],
+//         outputRange: [0, 0.5],
+//         extrapolate: 'clamp',
+//       }),
+//     },
+//   }),
+// }
 
 const renderSwitch = (switchApp: string) => {
   switch (switchApp) {
@@ -56,11 +54,18 @@ const renderSwitch = (switchApp: string) => {
     case SCREEN_ROUTER.MAIN:
       return (
         <>
-          <RootStack.Screen
-            name={SCREEN_ROUTER.MAIN}
-            component={StackMainScreen}
-          />
+          <RootStack.Screen name={SCREEN_ROUTER.MAIN} component={MainTab} />
           {StackAppCustomerScreen()}
+        </>
+      )
+    case SCREEN_ROUTER.MAIN_ADMIN:
+      return (
+        <>
+          <RootStack.Screen
+            name={SCREEN_ROUTER.MAIN_ADMIN}
+            component={MainTab}
+          />
+          {StackAppAdminScreen()}
         </>
       )
     default:
@@ -77,7 +82,7 @@ const AppNavigatorComponent = (props: any) => {
     >
       <RootStack.Navigator
         headerMode="none"
-        screenOptions={screenOptions}
+        // screenOptions={screenOptions}
         initialRouteName={ROOT_STACK.MAIN_APP}
         children={<>{renderSwitch(props?.switch)}</>}
       />
