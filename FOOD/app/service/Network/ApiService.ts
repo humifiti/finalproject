@@ -36,7 +36,9 @@ const createAPI = () => {
           })
         })
       } else if (data && data.code !== API_STATUS.UNAUTHORIZED) {
-        showMessages(R.strings().notification, data.message)
+        if (data.message !== 'Phone number was not activated') {
+          showMessages(R.strings().notification, data.message)
+        }
       }
       return Promise.reject(error)
     }
@@ -56,8 +58,7 @@ function handleResult<T>(api: any) {
 }
 
 function handleResponse<T>(data: ResponseType<T>) {
-  if (data.status !== 1)
-    return Promise.reject(new Error(data?.message || 'Co loi xay ra'))
+  if (!data) return Promise.reject(new Error(data?.message || 'Co loi xay ra'))
   return Promise.resolve(data)
 }
 

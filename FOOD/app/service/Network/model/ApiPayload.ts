@@ -8,3 +8,7 @@ export interface LoginPayload {
   phone: string
   password: string
 }
+export interface ActivePayload {
+  phone: string
+  otp: string
+}

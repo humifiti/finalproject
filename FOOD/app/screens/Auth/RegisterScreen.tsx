@@ -2,22 +2,21 @@ import R from '@app/assets/R'
 import RNButton from '@app/components/RNButton'
 import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import reactotron from '@app/config/ReactotronConfig'
+import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { colors } from '@app/theme'
 import { showMessages } from '@app/utils/AlertHelper'
 import React, { memo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   TextInput,
 } from 'react-native'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import AuthApi from './api/AuthApi'
-import { useDispatch } from 'react-redux'
-import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
-import { SCREEN_ROUTER } from '@app/constant/Constant'
 
 const RegisterScreenComponent = () => {
   const dispatch = useDispatch()
@@ -25,7 +24,6 @@ const RegisterScreenComponent = () => {
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
-  // const [email, setEmail] = useState('')
   const [password, setPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const firstNameRef = useRef<RNTextInput>(null)
@@ -34,8 +32,6 @@ const RegisterScreenComponent = () => {
   const lastNameInputRef = useRef<TextInput>(null)
   const phoneRef = useRef<RNTextInput>(null)
   const phoneInputRef = useRef<TextInput>(null)
-  // const emailRef = useRef<RNTextInput>(null)
-  // const emailInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
   const confirmPassRef = useRef<RNTextInput>(null)
@@ -103,21 +99,17 @@ const RegisterScreenComponent = () => {
       setIsLoading(true)
       await AuthApi.register(payload)
       setIsLoading(false)
-      dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
-    } catch (error) {
+      NavigationUtil.navigate(SCREEN_ROUTER_AUTH.OTP, { phone: phone })
+    } catch (error: any) {
       setIsLoading(false)
+      if (error?.response?.data.message === 'Phone number was not activated') {
+        const res = await AuthApi.resendOtp({
+          phone: phone,
+        })
+        NavigationUtil.navigate(SCREEN_ROUTER_AUTH.OTP, { phone: phone })
+      }
+      reactotron.log!(error?.response?.data.message)
     }
-    // callAPIHook({
-    //   API: AuthApi.updateRegister,
-    //   useLoading: setDialogLoading,
-    //   payload: payload,
-    //   typeLoading: 'isLoading',
-    //   onSuccess: async (_res: any) => {
-    //     props?.navigateSwitch(SCREEN_ROUTER.MAIN)
-    //   },
-    //   onError: (_err: any) => {},
-    //   onFinally: () => {},
-    // })
   }
 
   return (

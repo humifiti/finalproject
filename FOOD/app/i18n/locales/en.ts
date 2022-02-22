@@ -29,4 +29,8 @@ export default {
   last_name: 'Last Name',
   input_last_name: 'Enter your last name',
   login_with_your_account: 'Sign in with your account',
+  home: 'Home',
+  product: 'Product',
+  cart: 'Cart',
+  account: 'Account',
 }

@@ -44,9 +44,9 @@ const mainTabCustomer = {
 }
 
 const mainTabAdmin = {
-  [HOME]: HomeScreen,
   [PRODUCT]: ProductScreen,
   [CART]: CartScreen,
+  [USER]: AccountScreen,
 }
 
 const MAIN_TAB = {

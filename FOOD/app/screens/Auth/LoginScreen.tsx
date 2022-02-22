@@ -21,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { CheckBox } from 'react-native-elements'
 import { getStatusBarHeight, isIphoneX } from 'react-native-iphone-x-helper'
 import { useDispatch } from 'react-redux'
 import AuthApi from './api/AuthApi'
@@ -35,7 +36,7 @@ const LoginScreen = (props: any) => {
   const phoneInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
-
+  const [isCheck, setIsCheck] = useState<boolean>(true)
   const requestLogin = async () => {
     let isValid = true
     let inputRef = null
@@ -67,10 +68,16 @@ const LoginScreen = (props: any) => {
 
     try {
       setDialogLoading(true)
-      const res = await AuthApi.login(payload)
+      const res = isCheck
+        ? await AuthApi.loginAdmin(payload)
+        : await AuthApi.login(payload)
       setDialogLoading(false)
-      await AsyncStorageService.putToken(res?.data?.token)
-      dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
+      await AsyncStorageService.putToken(res?.data?.access_token?.token)
+      if (isCheck) {
+        dispatch(navigateSwitch(SCREEN_ROUTER.MAIN_ADMIN))
+      } else {
+        dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
+      }
     } catch (error) {
       setDialogLoading(false)
     }
@@ -105,8 +112,8 @@ const LoginScreen = (props: any) => {
                   children={
                     <>
                       <FstImage
-                        tintColor={'#FE724C'}
                         resizeMode="contain"
+                        tintColor={'#FE724C'}
                         style={styles.img_logo}
                         source={R.images.ic_logo}
                       />
@@ -143,20 +150,42 @@ const LoginScreen = (props: any) => {
                         valueType="password"
                       />
 
-                      <TouchableOpacity
-                        onPress={() => {
-                          NavigationUtil.navigate(
-                            SCREEN_ROUTER_AUTH.FORGOT_PASSWORD
-                          )
-                        }}
-                        children={
-                          <Text
-                            style={styles.txt_forgot_pass}
-                            children={`${R.strings().forgot_password} ?`}
-                          />
-                        }
-                      />
-
+                      <View style={styles.v_forgot_pass}>
+                        <CheckBox
+                          containerStyle={styles.containerChk}
+                          title={'Register with an admin account'}
+                          checkedIcon={
+                            <FstImage
+                              style={styles.ic_check}
+                              resizeMode="contain"
+                              source={R.images.ic_checked}
+                            />
+                          }
+                          uncheckedIcon={
+                            <FstImage
+                              style={styles.ic_check}
+                              resizeMode="contain"
+                              source={R.images.ic_unchecked}
+                            />
+                          }
+                          textStyle={styles.text}
+                          checked={isCheck}
+                          onPress={() => setIsCheck(!isCheck)}
+                        />
+                        <TouchableOpacity
+                          onPress={() => {
+                            // NavigationUtil.navigate(
+                            //   SCREEN_ROUTER_AUTH.FORGOT_PASSWORD
+                            // )
+                          }}
+                          children={
+                            <Text
+                              style={styles.txt_forgot_pass}
+                              children={`${R.strings().forgot_password} ?`}
+                            />
+                          }
+                        />
+                      </View>
                       <RNButton
                         onPress={requestLogin}
                         title={R.strings().login}
@@ -263,6 +292,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     marginLeft: 0,
     padding: 0,
+    marginTop: 0,
     //  / paddingBottom: 15,
   },
   text: {
@@ -280,7 +310,7 @@ const styles = StyleSheet.create({
   },
   v_forgot_pass: {
     flexDirection: 'row',
-    alignItems: 'center',
+    // alignItems: 'center',
     marginBottom: 40,
   },
   v_register: {

@@ -39,6 +39,10 @@ function strings() {
     login_with_your_account: I18n.t('login_with_your_account', {
       defaultValue: '',
     }),
+    home: I18n.t('home', { defaultValue: '' }),
+    product: I18n.t('product', { defaultValue: '' }),
+    cart: I18n.t('cart', { defaultValue: '' }),
+    account: I18n.t('account', { defaultValue: '' }),
   }
 }
 export default strings

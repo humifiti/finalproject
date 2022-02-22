@@ -3,35 +3,43 @@ import { moderateScale } from '@common'
 
 export const fonts = {
   regular11: {
-    fontSize: moderateScale(11),
+    // fontSize: moderateScale(11),
+    fontSize: 11,
     fontFamily: R.fonts.san_regular,
   },
   regular12: {
-    fontSize: moderateScale(12),
+    // fontSize: moderateScale(12),
+    fontSize: 12,
     fontFamily: R.fonts.san_regular,
   },
   regular13: {
-    fontSize: moderateScale(13),
+    // fontSize: moderateScale(13),
+    fontSize: 13,
     fontFamily: R.fonts.san_regular,
   },
   regular14: {
-    fontSize: moderateScale(14),
+    // fontSize: moderateScale(14),
+    fontSize: 14,
     fontFamily: R.fonts.san_regular,
   },
   regular15: {
-    fontSize: moderateScale(15),
+    // fontSize: moderateScale(15),
+    fontSize: 15,
     fontFamily: R.fonts.san_regular,
   },
   regular16: {
-    fontSize: moderateScale(16),
+    // fontSize: moderateScale(16),
+    fontSize: 16,
     fontFamily: R.fonts.san_regular,
   },
   regular17: {
-    fontSize: moderateScale(17),
+    // fontSize: moderateScale(17),
+    fontSize: 17,
     fontFamily: R.fonts.san_regular,
   },
   regular18: {
-    fontSize: moderateScale(18),
+    // fontSize: moderateScale(18),
+    fontSize: 18,
     fontFamily: R.fonts.san_regular,
   },
   // regular20: {
@@ -39,7 +47,8 @@ export const fonts = {
   //   fontFamily: R.fonts.san_regular
   // },
   regular24: {
-    fontSize: moderateScale(24),
+    // fontSize: moderateScale(24),
+    fontSize: 24,
     fontFamily: R.fonts.san_regular,
   },
   // bold12: {
@@ -79,7 +88,8 @@ export const fonts = {
     fontFamily: R.fonts.san_semi_bold,
   },
   semi_bold16: {
-    fontSize: moderateScale(16),
+    // fontSize: moderateScale(16),
+    fontSize: 16,
     fontFamily: R.fonts.san_semi_bold,
   },
   semi_bold18: {
@@ -87,11 +97,17 @@ export const fonts = {
     fontFamily: R.fonts.san_semi_bold,
   },
   semi_bold20: {
-    fontSize: moderateScale(20),
+    // fontSize: moderateScale(20),
+    fontSize: 20,
     fontFamily: R.fonts.san_semi_bold,
   },
   semi_bold24: {
-    fontSize: moderateScale(24),
+    // fontSize: moderateScale(24),
+    fontSize: 24,
+    fontFamily: R.fonts.san_semi_bold,
+  },
+  semi_bold26: {
+    fontSize: moderateScale(26),
     fontFamily: R.fonts.san_semi_bold,
   },
   // light12: {

@@ -1,10 +1,11 @@
 import R from '@app/assets/R'
 import { Otp } from '@app/components/Otp/Otp'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
+import { SCREEN_ROUTER, SCREEN_ROUTER_AUTH } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
+import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
 import { colors } from '@app/theme'
-import React, { memo, useState, useRef } from 'react'
+import React, { memo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
   KeyboardAvoidingView,
@@ -12,12 +13,44 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
 } from 'react-native'
-const OtpScreenComponent = () => {
-  //const [isLoading, setIsLoading] = useState<boolean>(false)
+import { useDispatch } from 'react-redux'
+import AuthApi from './api/AuthApi'
+const OtpScreenComponent = (props: {
+  route: { params: { otp: string; phone: string } }
+}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const dispatch = useDispatch()
   const [otp, setOtp] = useState<string>('')
   const isClearText = useRef<boolean>(false)
+
+  const handleOtpPhone = async (otpPhone: string) => {
+    const payload = {
+      otp: otpPhone,
+      phone: props.route.params.phone,
+    }
+    try {
+      setIsLoading(true)
+      const res = await AuthApi.active(payload)
+      setIsLoading(false)
+      NavigationUtil.navigate(SCREEN_ROUTER_AUTH.LOGIN)
+    } catch (error) {
+      setIsLoading(false)
+    }
+  }
+
+  const sentOtpPhone = async () => {
+    try {
+      setIsLoading(true)
+      const res = await AuthApi.resendOtp({
+        phone: props?.route?.params?.phone,
+      })
+      isClearText.current = false
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+    }
+  }
   return (
     <ScreenWrapper
       back
@@ -25,8 +58,8 @@ const OtpScreenComponent = () => {
       color="black"
       backgroundHeader="white"
       forceInset={['left']}
-      titleHeader={'OTP'}
-      dialogLoading={false}
+      titleHeader={'Vefification Code'}
+      dialogLoading={isLoading}
       children={
         <KeyboardAvoidingView
           enabled
@@ -43,26 +76,28 @@ const OtpScreenComponent = () => {
               onOtpValid={(text: string) => {
                 if (text !== otp) {
                   setOtp(text)
+                  handleOtpPhone(text)
                 }
-                NavigationUtil.navigate(SCREEN_ROUTER_AUTH.CHANGE_PASSWORD)
+
+                // NavigationUtil.navigate(SCREEN_ROUTER_AUTH.CHANGE_PASSWORD)
               }}
               isClearText={isClearText.current}
               onOtpInValid={setOtp}
               textStyle={styles.text_otp}
               wrapInputStyle={styles.v_otp}
-              length={6}
+              length={4}
               containerStyle={styles.v_contain_otp}
             />
-            <View style={styles.v_countDown}>
+            {/* <View style={styles.v_countDown}>
               <Text
                 style={styles.txt_countDown}
                 children={`${R.strings().expire} 00:00`}
               />
-            </View>
+            </View> */}
 
             <TouchableOpacity
-            //  onPress={sentOtpPhone }
-            // disabled={timeCountDown > 0 ? true : false}
+              onPress={sentOtpPhone}
+              // disabled={timeCountDown > 0 ? true : false}
             >
               <Text
                 style={[
@@ -71,8 +106,12 @@ const OtpScreenComponent = () => {
                     color: colors.primary,
                   },
                 ]}
-                children={R.strings().send_back_otp}
-              />
+              >
+                <Text style={{ color: '#9796A1' }}>
+                  I don't recevie a code!
+                </Text>{' '}
+                Please resend
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
