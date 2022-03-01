@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import { fonts } from '@app/theme'
@@ -13,6 +14,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native'
+import HomeApi from './api/HomeApi'
 
 const { width } = Dimensions.get('window')
 const HomeScreen = () => {
@@ -72,6 +74,15 @@ const styleSearch = StyleSheet.create({
 })
 
 const Category = () => {
+  useEffect(() => {
+    getDataCategory()
+  }, [])
+
+  const getDataCategory = async () => {
+    try {
+      await HomeApi.getCategory()
+    } catch (error) {}
+  }
   const data = [
     { nameFood: 'Burger', imageFood: R.images.ic_bugger },
     { nameFood: 'Donut', imageFood: R.images.ic_donut },
@@ -116,6 +127,7 @@ const styleCategory = StyleSheet.create({
     marginTop: 20,
     borderRadius: 100,
     alignItems: 'center',
+    marginBottom: 10,
   },
   icon: {
     width: 50,
@@ -159,7 +171,7 @@ const ListRestaurant = () => {
   return (
     <View>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 25 }}
+        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
       >
         <Text style={{ ...fonts.semi_bold18, flex: 1 }}>
           Featured restaurants
@@ -194,15 +206,15 @@ const styleListRes = StyleSheet.create({
       width: 0,
       height: 3,
     },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.17,
+    shadowRadius: 8,
 
     elevation: 6,
     marginTop: 20,
     marginRight: 15,
     width: width * 0.7,
     paddingBottom: 15,
-    marginBottom: 5,
+    marginBottom: 15,
   },
   v_row: {
     flexDirection: 'row',
@@ -231,7 +243,7 @@ const ListFood = () => {
   return (
     <View>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 25 }}
+        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
       >
         <Text style={{ ...fonts.semi_bold18, flex: 1 }}>Popular items</Text>
       </View>
@@ -259,8 +271,8 @@ const styleListFood = StyleSheet.create({
       width: 0,
       height: 3,
     },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
 
     elevation: 6,
     marginTop: 20,

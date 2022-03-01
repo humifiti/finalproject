@@ -15,11 +15,9 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native'
-import { connect, useDispatch } from 'react-redux'
 import AuthApi from './api/AuthApi'
 
 const RegisterScreenComponent = () => {
-  const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
@@ -103,7 +101,7 @@ const RegisterScreenComponent = () => {
     } catch (error: any) {
       setIsLoading(false)
       if (error?.response?.data.message === 'Phone number was not activated') {
-        const res = await AuthApi.resendOtp({
+        await AuthApi.resendOtp({
           phone: phone,
         })
         NavigationUtil.navigate(SCREEN_ROUTER_AUTH.OTP, { phone: phone })
@@ -260,8 +258,4 @@ const styles = StyleSheet.create({
 
 const RegisterScreen = memo(RegisterScreenComponent, isEqual)
 
-const mapStateToProps = (state: any) => ({})
-
-const mapDispatchToProps = {}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RegisterScreen)
+export default RegisterScreen
