@@ -14,7 +14,9 @@ const createAPI = () => {
   APIInstant.defaults.timeout = 20000
   APIInstant.defaults.headers = { 'Content-Type': 'application/json' }
   APIInstant.interceptors.request.use(async (config: any) => {
-    config.headers.token = await AsyncStoreService.getToken()
+    config.headers.Authorization = `Bearer ${(config.headers.Authorization =
+      await AsyncStoreService.getToken())}`
+    // config.headers.Authorization = await AsyncStoreService.getToken()
     return config
   }, Promise.reject)
 
