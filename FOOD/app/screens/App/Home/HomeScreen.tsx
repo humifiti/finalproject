@@ -1,6 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
+import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { fonts } from '@app/theme'
 import React, { useEffect, useCallback } from 'react'
 import {
@@ -41,12 +43,17 @@ const HomeScreen = () => {
 
 const Search = () => {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15 }}>
+    <TouchableOpacity
+      onPress={() => {
+        NavigationUtil.navigate(SCREEN_ROUTER_APP.SEARCH)
+      }}
+      style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15 }}
+    >
       <View style={styleSearch.v_container}>
         <FstImage style={styleSearch.ic_search} source={R.images.ic_search} />
         <Text style={styleSearch.text}> Find for food or restaurant...</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 

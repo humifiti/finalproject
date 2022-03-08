@@ -1,15 +1,13 @@
-import React from 'react'
 import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
-import NotificationScreen from '@app/screens/App/Notification/NotificationScreen'
-import ProductScreen from '@app/screens/App/Product/ProductScreen'
+import SearchScreen from '@app/screens/App/Home/SearchScreen'
 import { createStackNavigator } from '@react-navigation/stack'
+import React from 'react'
 
-const { PRODUCT, NOTIFICATION } = SCREEN_ROUTER_APP
+const { SEARCH } = SCREEN_ROUTER_APP
 const Stack = createStackNavigator()
 
 const mainScreen = {
-  [PRODUCT]: ProductScreen,
-  [NOTIFICATION]: NotificationScreen,
+  [SEARCH]: SearchScreen,
 }
 
 export const StackAppCustomerScreen = () => {

@@ -7,6 +7,7 @@ const SCREEN_ROUTER_APP = {
   HOME: 'HOME',
   ORDER: 'ORDER',
   USER: 'USER',
+  SEARCH: 'SEARCH',
 }
 
 const API_STATUS = {

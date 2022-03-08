@@ -36,7 +36,7 @@ const LoginScreen = (props: any) => {
   const phoneInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
-  const [isCheck, setIsCheck] = useState<boolean>(true)
+  const [isCheck, setIsCheck] = useState<boolean>(false)
   const requestLogin = async () => {
     let isValid = true
     let inputRef = null
