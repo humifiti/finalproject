@@ -29,6 +29,7 @@
     "immer": "^9.0.5",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
+    "native-base": "^2.15.2",
     "react": "17.0.1",
     "react-fast-compare": "^3.2.0",
     "react-native": "0.64.2",
