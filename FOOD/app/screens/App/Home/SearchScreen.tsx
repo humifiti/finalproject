@@ -13,6 +13,8 @@ import FstImage from '@app/components/FstImage/FstImage'
 import { colors, fonts } from '@app/theme'
 import R from '@app/assets/R'
 import { Tab, Tabs } from 'native-base'
+import ListFood from './ListFood'
+import ListRestaurant from './ListRestaurant'
 const { height } = Dimensions.get('window')
 const SearchScreen = () => {
   const [search, setSearch] = useState<string>('')
@@ -30,9 +32,7 @@ const SearchScreen = () => {
       forceInset={['left']}
       titleHeader={'Search Food'}
       children={
-        <View
-          style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 25 }}
-        >
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           <SearchBar
             placeholder={'Find for food or restaurant...'}
             onChangeText={setSearch}
@@ -56,10 +56,10 @@ const SearchScreen = () => {
             renderTabBar={() => <TabBarComponent />}
           >
             <Tab heading={'Food Item'}>
-              <Text>alo</Text>
+              <ListFood />
             </Tab>
             <Tab heading={'Restaurant'}>
-              <Text>alo</Text>
+              <ListRestaurant />
             </Tab>
           </Tabs>
         </View>
@@ -116,6 +116,7 @@ const tabbar_styles = StyleSheet.create({
     paddingVertical: 4,
     //paddingBottom: 20,
     marginTop: 23,
+    marginHorizontal: 25,
   },
   tab: {
     backgroundColor: 'white',
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     borderColor: 'white',
     padding: 0,
+    paddingHorizontal: 25,
   },
   input_container: {
     backgroundColor: '#F3F3F3',

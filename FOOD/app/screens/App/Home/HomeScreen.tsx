@@ -81,9 +81,9 @@ const styleSearch = StyleSheet.create({
 })
 
 const Category = () => {
-  useEffect(() => {
-    getDataCategory()
-  }, [])
+  // useEffect(() => {
+  //   getDataCategory()
+  // }, [])
 
   const getDataCategory = async () => {
     try {
@@ -168,7 +168,7 @@ const ListRestaurant = () => {
           </Text>
           <FstImage style={styleListRes.icon} source={R.images.ic_time} />
           <Text style={{ ...fonts.regular14, color: '#5B5B5E' }}>
-            free delivery
+            10-15 mins
           </Text>
         </View>
       </TouchableOpacity>
@@ -275,7 +275,7 @@ const styleListFood = StyleSheet.create({
     backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
+      width: 5,
       height: 3,
     },
     shadowOpacity: 0.1,
