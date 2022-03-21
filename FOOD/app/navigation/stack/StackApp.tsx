@@ -1,13 +1,15 @@
 import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import SearchScreen from '@app/screens/App/Home/SearchScreen'
+import FoodDetail from '@app/screens/App/Product/FoodDetail'
 import { createStackNavigator } from '@react-navigation/stack'
 import React from 'react'
 
-const { SEARCH } = SCREEN_ROUTER_APP
+const { SEARCH, FOOD_DETAIL } = SCREEN_ROUTER_APP
 const Stack = createStackNavigator()
 
 const mainScreen = {
   [SEARCH]: SearchScreen,
+  [FOOD_DETAIL]: FoodDetail,
 }
 
 export const StackAppCustomerScreen = () => {

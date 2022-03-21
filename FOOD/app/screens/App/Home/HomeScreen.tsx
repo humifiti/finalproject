@@ -235,7 +235,12 @@ const ListFood = () => {
   const dataRes = ['alo', 'alo', 'alo']
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
-      <TouchableOpacity style={styleListFood.v_container}>
+      <TouchableOpacity
+        onPress={() => {
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.FOOD_DETAIL)
+        }}
+        style={styleListFood.v_container}
+      >
         <FstImage style={styleListFood.image} source={R.images.img_food} />
         <View style={{ marginTop: 11, alignItems: 'center' }}>
           <Text style={{ ...fonts.semi_bold15 }}>Red n hot pizza</Text>

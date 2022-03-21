@@ -1,21 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native'
-import React, { useState } from 'react'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { SearchBar } from 'react-native-elements'
-import FstImage from '@app/components/FstImage/FstImage'
-import { colors, fonts } from '@app/theme'
 import R from '@app/assets/R'
+import FstImage from '@app/components/FstImage/FstImage'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { colors, fonts } from '@app/theme'
 import { Tab, Tabs } from 'native-base'
+import React, { useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { SearchBar } from 'react-native-elements'
 import ListFood from './ListFood'
 import ListRestaurant from './ListRestaurant'
-const { height } = Dimensions.get('window')
+
 const SearchScreen = () => {
   const [search, setSearch] = useState<string>('')
   const [page, setPage] = useState(0)
