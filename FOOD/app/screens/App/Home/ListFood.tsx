@@ -24,19 +24,7 @@ const ListFood = () => {
             Spicy chicken, beef
           </Text>
         </View>
-        <View
-          style={{
-            backgroundColor: 'white',
-            position: 'absolute',
-            left: 10,
-            top: 10,
-            paddingHorizontal: 7,
-            paddingVertical: 4,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 10,
-          }}
-        >
+        <View style={styleListFood.v_row}>
           <Text style={{ ...fonts.semi_bold14 }}>9.50 $ </Text>
         </View>
       </TouchableOpacity>
@@ -83,5 +71,16 @@ const styleListFood = StyleSheet.create({
     marginTop: 20,
     width: width * 0.4,
     paddingBottom: 15,
+  },
+  v_row: {
+    backgroundColor: 'white',
+    position: 'absolute',
+    left: 10,
+    top: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
   },
 })
