@@ -1,14 +1,15 @@
+/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import NavigationUtil from '@app/navigation/NavigationUtil'
-import { colors, fonts } from '@app/theme'
+import { fonts } from '@app/theme'
 import React, { useState } from 'react'
 import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native'
 import { CheckBox } from 'react-native-elements'
