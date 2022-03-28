@@ -151,7 +151,12 @@ const ListRestaurant = () => {
   const dataRes = ['alo', 'alo', 'alo']
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
-      <TouchableOpacity style={styleListRes.v_container}>
+      <TouchableOpacity
+        onPress={() => {
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.RESTAURANT_DETAIL)
+        }}
+        style={styleListRes.v_container}
+      >
         <FstImage style={styleListRes.image} source={R.images.ic_restaurant} />
         <View style={styleListRes.v_row}>
           <Text style={{ ...fonts.semi_bold15, marginRight: 5 }}>
