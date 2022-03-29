@@ -1,4 +1,5 @@
 const images = {
+  ic_add_amount: require('./images/ic_add_amount.png'),
   ic_arrow_down: require('./images/ic_arrow_down.png'),
   ic_arrow_right: require('./images/ic_arrow_right.png'),
   ic_arrow_right_circle: require('./images/ic_arrow_right_circle.png'),
@@ -25,6 +26,7 @@ const images = {
   ic_logo: require('./images/ic_logo.png'),
   ic_mexican: require('./images/ic_mexican.png'),
   ic_minus: require('./images/ic_minus.png'),
+  ic_minuss: require('./images/ic_minuss.png'),
   ic_pizza: require('./images/ic_pizza.png'),
   ic_plus: require('./images/ic_plus.png'),
   ic_product: require('./images/ic_product.png'),

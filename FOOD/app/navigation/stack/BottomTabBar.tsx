@@ -3,6 +3,10 @@
 import R from '@app/assets/R'
 import { SCREEN_ROUTER, SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
+import AccountScreen from '@app/screens/App/Account/AccountScreen'
+import CartScreen from '@app/screens/App/Cart/CartScreen'
+import HomeScreen from '@app/screens/App/Home/HomeScreen'
+import ProductScreen from '@app/screens/App/Product/ProductScreen'
 import { colors } from '@app/theme'
 import { showConfirm } from '@app/utils/AlertHelper'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -11,19 +15,13 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { getBottomSpace } from 'react-native-iphone-x-helper'
 import { useDispatch } from 'react-redux'
 import reactotron from 'reactotron-react-native'
-import AccountScreen from '@app/screens/App/Account/AccountScreen'
-import CartScreen from '@app/screens/App/Cart/CartScreen'
-import HomeScreen from '@app/screens/App/Home/HomeScreen'
-import ProductScreen from '@app/screens/App/Product/ProductScreen'
 const Tab = createBottomTabNavigator()
-const Stack = createStackNavigator()
 const {
   ic_home,
   ic_product,
