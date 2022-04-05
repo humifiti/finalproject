@@ -2,7 +2,7 @@ export const colors = {
   label: '#262626',
   line: '#BFBFBF',
   primary: '#FE724C',
-  backgroundColor: '#E5E5E5',
+  backgroundColor: '#F5F5F5',
   white: '#ffffff',
   black: '#000000',
   focus: '#B4C1D5',

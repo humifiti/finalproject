@@ -43,10 +43,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
+    flex: 1,
   },
   text: {
     fontFamily: R.fonts.san_semi_bold,
     fontSize: 16,
     color: 'white',
+    flex: 1,
   },
 })
