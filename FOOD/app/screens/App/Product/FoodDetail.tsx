@@ -2,8 +2,11 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import NavigationUtil from '@app/navigation/NavigationUtil'
-import { fonts } from '@app/theme'
-import React, { useState } from 'react'
+import { colors, fonts } from '@app/theme'
+import { showMessages } from '@app/utils/AlertHelper'
+import { formatNumber } from '@app/utils/Format'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
+import React, { useEffect, useState } from 'react'
 import {
   SafeAreaView,
   ScrollView,
@@ -12,13 +15,41 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { CheckBox } from 'react-native-elements'
 import FastImage, { Source } from 'react-native-fast-image'
+import ProductApi from './api/ProductApi'
 
-const data = ['alo', 'alo', 'alo']
+interface FoodProps {
+  route: { params: { id: number } }
+}
 
-const FoodDetail = () => {
+const FoodDetail = (props: FoodProps) => {
+  const [data, setData] = useState<any>()
   const [count, setCount] = useState<number>(1)
+  useEffect(() => {
+    getDataFoodDetail()
+  }, [])
+
+  const getDataFoodDetail = async () => {
+    showLoading()
+    try {
+      const res = await ProductApi.getFoodDetail({ id: props.route.params.id })
+      setData(res.data)
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+  }
+
+  const handleAddCart = async () => {
+    showLoading()
+    try {
+      ProductApi.addCart({ food_id: data.id, quantity: count })
+      showMessages('Notification', 'Added successfully')
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+  }
   return (
     <SafeAreaView style={styles.v_container}>
       <ScrollView style={styles.v_container}>
@@ -31,11 +62,12 @@ const FoodDetail = () => {
         >
           <FstImage style={styles.ic_back} source={R.images.ic_back} />
         </TouchableOpacity>
-        <Text style={styles.txt_food}>Ground Beef Tacos</Text>
+        <Text style={styles.txt_food}>{data?.name}</Text>
         <View style={styles.v_row}>
           <FstImage style={styles.ic_star} source={R.images.ic_star} />
           <Text style={styles.txt_evaluate}>
-            4.5 <Text style={styles.txt_number}>(30+)</Text>
+            {data?.rating}{' '}
+            <Text style={styles.txt_number}>{`(${data?.rating_count}+)`}</Text>
           </Text>
           <TouchableOpacity>
             <Text style={styles.txt_review}>See Review</Text>
@@ -45,7 +77,10 @@ const FoodDetail = () => {
           style={{ flexDirection: 'row', alignItems: 'center', marginTop: 18 }}
         >
           <Text style={{ ...fonts.semi_bold14, flex: 1 }}>
-            $<Text style={{ ...fonts.semi_bold26 }}>9.50</Text>
+            đ
+            <Text style={{ ...fonts.semi_bold26 }}>
+              {formatNumber(data?.price)}
+            </Text>
           </Text>
           <TouchableOpacity
             onPress={() => {
@@ -78,39 +113,18 @@ const FoodDetail = () => {
           </TouchableOpacity>
         </View>
         <Text style={{ color: '#9796A1', ...fonts.regular15, marginTop: 19 }}>
-          Brown the beef better. Lean ground beef – I like to use 85% lean
-          angus. Garlic – use fresh chopped. Spices – chili powder, cumin, onion
-          powder.
+          {data?.description}
         </Text>
-        <Text style={{ ...fonts.semi_bold18, marginTop: 26 }}>
-          Choice of Add On
-        </Text>
-        {data.map(item => (
-          <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}
-          >
-            <FstImage
-              style={{ width: 50, height: 50 }}
-              source={R.images.img_food2}
-            />
-            <Text style={{ ...fonts.semi_bold16, marginLeft: 18, flex: 1 }}>
-              Baby spinach
-            </Text>
-            <Text style={{ ...fonts.regular14, color: '#9796A1' }}>+$2.30</Text>
-            <CheckBox
-              containerStyle={styles.containerCheckBox}
-              checkedIcon={<IconCheckBox img={R.images.ic_checked2} />}
-              uncheckedIcon={<IconCheckBox img={R.images.ic_unchecked2} />}
-              checked={true}
-            />
-          </View>
-        ))}
       </ScrollView>
+      <TouchableOpacity onPress={handleAddCart} style={styles.v_button}>
+        <View style={styles.v_image}>
+          <FstImage style={styles.ic_log_out} source={R.images.ic_cart2} />
+        </View>
+
+        <Text style={styles.txt_log_out}>ADD TO CART</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   )
-}
-const IconCheckBox = ({ img }: { img: number | Source }) => {
-  return <FstImage style={styles.ic_check} resizeMode="contain" source={img} />
 }
 
 export default FoodDetail
@@ -172,5 +186,33 @@ const styles = StyleSheet.create({
     color: '#FE724C',
     ...fonts.regular14,
     marginLeft: 7,
+  },
+  v_button: {
+    backgroundColor: colors.primary,
+    alignSelf: 'center',
+    marginBottom: 50,
+    borderRadius: 28.5,
+    paddingVertical: 9,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  txt_log_out: {
+    ...fonts.regular16,
+    color: 'white',
+    fontWeight: '500',
+  },
+  ic_log_out: {
+    width: 17,
+    height: 17,
+  },
+  v_image: {
+    backgroundColor: 'white',
+    width: 40,
+    height: 40,
+    borderRadius: 40 / 2,
+    marginRight: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

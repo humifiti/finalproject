@@ -5,6 +5,10 @@ export default {
     ApiClient.get(`/api/v1/restaurant/${payload.id}`, {
       params: _.omit(payload, ['id']),
     }),
+  getFoodDetail: (payload: { id: number }) =>
+    ApiClient.get(`/api/v1/food/${payload.id}`, {
+      params: _.omit(payload, ['id']),
+    }),
   getFeaturedItem: (payload: { id: number; order_by: string }) =>
     ApiClient.get(`/api/v1/restaurant/${payload.id}/food`, {
       params: _.omit(payload, ['id']),
@@ -15,4 +19,6 @@ export default {
     ApiClient.get(`/api/v1/restaurant/${payload.id}/food`, {
       params: _.omit(payload, ['id']),
     }),
+  addCart: (payload: { food_id: number; quantity: number }) =>
+    ApiClient.post(`/api/v1/cart`, payload),
 }

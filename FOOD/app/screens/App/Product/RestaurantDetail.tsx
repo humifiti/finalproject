@@ -2,6 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
+import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
 import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
@@ -86,7 +87,14 @@ const RestaurantDetail = (props: RestaurantProps) => {
 
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
-      <TouchableOpacity style={styleListFood.v_container}>
+      <TouchableOpacity
+        onPress={() => {
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.FOOD_DETAIL, {
+            id: item.id,
+          })
+        }}
+        style={styleListFood.v_container}
+      >
         <FstImage
           style={styleListFood.image}
           source={{ uri: item?.images?.url }}
@@ -233,7 +241,9 @@ const ListFoodFeatured = ({ dataFeaturedFood }: { dataFeaturedFood: any }) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          // NavigationUtil.navigate(SCREEN_ROUTER_APP.RESTAURANT_DETAIL)
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.FOOD_DETAIL, {
+            id: item.id,
+          })
         }}
         style={styleListRes.v_container}
       >
@@ -325,6 +335,14 @@ const styleListRes = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.17,
+    shadowRadius: 8,
+    elevation: 6,
   },
 })
 
@@ -381,7 +399,6 @@ const styleListFood = StyleSheet.create({
   v_listProduct: {
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
     paddingHorizontal: 20,
-    //backgroundColor: 'red',
   },
   v_column: {
     justifyContent: 'space-between',
@@ -413,6 +430,14 @@ const styleListFood = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.17,
+    shadowRadius: 8,
+    elevation: 6,
   },
 })
 

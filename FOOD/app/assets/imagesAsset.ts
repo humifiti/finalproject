@@ -10,6 +10,7 @@ const images = {
   ic_backgroud: require('./images/ic_backgroud.png'),
   ic_bugger: require('./images/ic_bugger.png'),
   ic_cart: require('./images/ic_cart.png'),
+  ic_cart2: require('./images/ic_cart2.png'),
   ic_cart_blue: require('./images/ic_cart_blue.png'),
   ic_cart_focus: require('./images/ic_cart_focus.png'),
   ic_chat_blue: require('./images/ic_chat_blue.png'),

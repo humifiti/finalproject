@@ -1,7 +1,11 @@
 /* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
-import { SCREEN_ROUTER, SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import {
+  MAIN_TAB_CUSTOMER,
+  SCREEN_ROUTER,
+  SCREEN_ROUTER_APP,
+} from '@app/constant/Constant'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
 import AccountScreen from '@app/screens/App/Account/AccountScreen'
 import CartScreen from '@app/screens/App/Cart/CartScreen'
@@ -21,6 +25,7 @@ import FastImage from 'react-native-fast-image'
 import { getBottomSpace } from 'react-native-iphone-x-helper'
 import { useDispatch } from 'react-redux'
 import reactotron from 'reactotron-react-native'
+import NavigationUtil from '../NavigationUtil'
 const Tab = createBottomTabNavigator()
 const {
   ic_home,
@@ -32,7 +37,7 @@ const {
   ic_cart_focus,
 } = R.images
 
-const { HOME, PRODUCT, CART, USER } = SCREEN_ROUTER_APP
+const { HOME, PRODUCT, CART, USER } = MAIN_TAB_CUSTOMER
 
 const mainTabCustomer = {
   [HOME]: HomeScreen,
@@ -138,18 +143,9 @@ export const MainTab = (route: any) => {
               {...props}
               onPress={async e => {
                 const token = await AsyncStorage.getItem('token')
-                if (
-                  (route.name === SCREEN_ROUTER_APP.USER ||
-                    route.name === SCREEN_ROUTER_APP.PRODUCT) &&
-                  !token
-                ) {
-                  showConfirm(
-                    R.strings().notification,
-                    R.strings().please_login,
-                    () => {
-                      dispatch(navigateSwitch(SCREEN_ROUTER.AUTH))
-                    }
-                  )
+
+                if (route.name === MAIN_TAB_CUSTOMER.CART) {
+                  NavigationUtil.navigate(SCREEN_ROUTER_APP.CART)
                   return
                 }
                 if (props.onPress) props.onPress(e)
