@@ -1,9 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import NavigationUtil from '@app/navigation/NavigationUtil'
+import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
-import React, { useCallback, useEffect } from 'react'
+import { formatNumber } from '@app/utils/Format'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   FlatList,
   Platform,
@@ -22,41 +26,143 @@ interface RestaurantProps {
 }
 
 const RestaurantDetail = (props: RestaurantProps) => {
+  const { lat, long } = useAppSelector(state => state.locationReducer)
+  const [categoryId, setCategoryId] = useState(0)
+  const [dataRest, setDataRest] = useState<any>()
+  const [dataFeaturedFood, setDataFeaturedFood] = useState<any[]>([])
+  const [dataCategory, setDataCategory] = useState<any[]>([])
+  const [dataFood, setDataFood] = useState<any[]>([])
   useEffect(() => {
     getDataRestaurantDetail()
   }, [])
 
+  useEffect(() => {
+    getListFood()
+  }, [categoryId])
+
   const getDataRestaurantDetail = async () => {
+    showLoading()
     try {
-      await ProductApi.getRestaurantDetail({ id: props.route.params.id })
+      const res = await ProductApi.getRestaurantDetail({
+        id: props.route.params.id,
+        lat: lat,
+        lng: long,
+      })
+      const resFeaturedItem = await ProductApi.getFeaturedItem({
+        id: res.data.id,
+        order_by: 'rating_desc',
+      })
+      const resCategory = await ProductApi.getCategory({ id: res.data.id })
+
+      const newData = resCategory.data
+
+      newData.forEach((value, index) => {
+        if (index === 0) {
+          newData[index].isChecked = true
+        } else {
+          newData[index].isChecked = false
+        }
+      })
+
+      setDataRest(res.data)
+      setDataFeaturedFood(resFeaturedItem.data)
+      setDataCategory([...newData])
+      setCategoryId(resCategory.data[0].category_id)
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+  }
+
+  const getListFood = async () => {
+    try {
+      const resListFood = await ProductApi.getListFoodCategory({
+        id: dataRest.id,
+        category_id: categoryId,
+      })
+      setDataFood(resListFood.data)
     } catch (error) {}
   }
+
+  const renderItem = useCallback(({ item }: { item: any }) => {
+    return (
+      <TouchableOpacity style={styleListFood.v_container}>
+        <FstImage
+          style={styleListFood.image}
+          source={{ uri: item?.images?.url }}
+        />
+        <View style={{ marginTop: 11, paddingLeft: 10 }}>
+          <Text style={{ ...fonts.semi_bold15 }}>{item?.name}</Text>
+          <Text style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}>
+            {item?.description}
+          </Text>
+        </View>
+        <View style={styleListFood.v_row}>
+          <Text style={{ ...fonts.semi_bold14 }}>{`${formatNumber(
+            item?.price
+          )} $`}</Text>
+        </View>
+      </TouchableOpacity>
+    )
+  }, [])
+  const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <SafeAreaView style={styles.v_container}>
-      {/* <ScrollView style={styles.v_container}> */}
-      {/* <Banner />
-        <InfoRestaurant />
-        <ListFoodFeatured />
-        <Category /> */}
-      <ListFood />
-      {/* </ScrollView> */}
+      <FlatList
+        ListHeaderComponent={
+          <>
+            <Banner banner={dataRest?.cover?.url} />
+            <InfoRestaurant
+              logo={dataRest?.logo?.url}
+              name={dataRest?.name}
+              address={dataRest?.address}
+              rating={dataRest?.rating}
+              count_rating={dataRest?.rating_count}
+            />
+            {dataFeaturedFood.length > 0 && (
+              <ListFoodFeatured dataFeaturedFood={dataFeaturedFood} />
+            )}
+            {dataCategory.length > 0 && (
+              <Category
+                setCategoryId={setCategoryId}
+                dataCategory={dataCategory}
+              />
+            )}
+          </>
+        }
+        style={styleListFood.v_listProduct}
+        columnWrapperStyle={styleListFood.v_column}
+        data={dataFood}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        showsVerticalScrollIndicator={false}
+        numColumns={2}
+      />
     </SafeAreaView>
   )
 }
 
-const InfoRestaurant = () => {
+const InfoRestaurant = ({
+  logo,
+  name,
+  address,
+  rating,
+  count_rating,
+}: {
+  logo: string
+  name: string
+  address: string
+  rating: string
+  count_rating: number
+}) => {
   return (
     <View style={InfoResStyle.v_container}>
       <View style={InfoResStyle.v_avatar}>
-        <FastImage
-          tintColor={'#FFC529'}
-          style={InfoResStyle.avatar}
-          source={R.images.img_pizza_hut}
-        />
+        <FastImage style={InfoResStyle.avatar} source={{ uri: logo }} />
       </View>
-      <Text style={{ ...fonts.semi_bold20 }}>Pizza Hut</Text>
+      <Text style={{ ...fonts.semi_bold20 }}>{name}</Text>
       <Text style={{ ...fonts.regular12, color: '#9796A1', marginTop: 8 }}>
-        4102 Pretty View Lanenda
+        {address}
       </Text>
       <View style={InfoResStyle.v_row}>
         <FstImage style={InfoResStyle.icon} source={R.images.ic_delivery} />
@@ -69,7 +175,7 @@ const InfoRestaurant = () => {
       <View style={styles.v_row}>
         <FstImage style={styles.ic_star} source={R.images.ic_star} />
         <Text style={styles.txt_evaluate}>
-          4.5 <Text style={styles.txt_number}>(30+)</Text>
+          {rating} <Text style={styles.txt_number}>{`(${count_rating}+)`}</Text>
         </Text>
         <TouchableOpacity>
           <Text style={styles.txt_review}>See Review</Text>
@@ -94,8 +200,9 @@ const InfoResStyle = StyleSheet.create({
     marginTop: -50,
   },
   avatar: {
-    width: 81,
-    height: 81,
+    width: 83,
+    height: 83,
+    borderRadius: 83 / 2,
   },
   v_row: {
     flexDirection: 'row',
@@ -105,10 +212,10 @@ const InfoResStyle = StyleSheet.create({
   icon: { width: 12, height: 12, marginRight: 5 },
 })
 
-const Banner = () => {
+const Banner = ({ banner }: { banner: string }) => {
   return (
     <>
-      <FstImage style={styles.img_banner} source={R.images.img_food_banner} />
+      <FstImage style={styles.img_banner} source={{ uri: banner }} />
       <TouchableOpacity
         onPress={() => {
           NavigationUtil.goBack()
@@ -121,8 +228,7 @@ const Banner = () => {
   )
 }
 
-const ListFoodFeatured = () => {
-  const dataRes = ['alo', 'alo', 'alo']
+const ListFoodFeatured = ({ dataFeaturedFood }: { dataFeaturedFood: any }) => {
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity
@@ -131,9 +237,12 @@ const ListFoodFeatured = () => {
         }}
         style={styleListRes.v_container}
       >
-        <FstImage style={styleListRes.image} source={R.images.ic_restaurant} />
+        <FstImage
+          style={styleListRes.image}
+          source={{ uri: item?.images?.url }}
+        />
         <Text style={{ ...fonts.semi_bold15, marginLeft: 15, marginTop: 15 }}>
-          Chicken Hawaiian
+          {item?.name}
         </Text>
         <Text
           style={{
@@ -143,10 +252,12 @@ const ListFoodFeatured = () => {
             color: '#5B5B5E',
           }}
         >
-          Chicken, Cheese and pineapple
+          {item.description}
         </Text>
         <View style={styleListRes.v_price}>
-          <Text style={{ ...fonts.semi_bold14 }}>9.50 $ </Text>
+          <Text style={{ ...fonts.semi_bold14 }}>{`${formatNumber(
+            item?.price
+          )} $`}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -167,7 +278,7 @@ const ListFoodFeatured = () => {
       <FlatList
         maxToRenderPerBatch={10}
         initialNumToRender={10}
-        data={dataRes}
+        data={dataFeaturedFood}
         keyExtractor={keyExtractor}
         horizontal
         renderItem={renderItem}
@@ -217,12 +328,31 @@ const styleListRes = StyleSheet.create({
   },
 })
 
-const Category = () => {
-  const dataCategory = ['All', 'Bundles', 'AdditionalBundles']
+const Category = ({
+  dataCategory,
+  setCategoryId,
+}: {
+  dataCategory: any
+  setCategoryId: React.Dispatch<React.SetStateAction<number>>
+}) => {
+  const [data, setData] = useState(JSON.parse(JSON.stringify(dataCategory)))
   return (
-    <ScrollView horizontal>
-      {dataCategory.map((item, index) => (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      {data.map(item => (
         <TouchableOpacity
+          onPress={() => {
+            const newData = [...data]
+
+            newData.forEach((value: any, index) => {
+              if (value.category_id !== item.category_id) {
+                newData[index].isChecked = false
+              } else if (value.category_id === item.category_id) {
+                newData[index].isChecked = true
+              }
+            })
+            setData([...newData])
+            setCategoryId(item.category_id)
+          }}
           style={{
             paddingVertical: 10,
             paddingHorizontal: 16,
@@ -230,59 +360,20 @@ const Category = () => {
             borderWidth: 1,
             borderColor: '#F2EAEA',
             marginRight: 12,
-            backgroundColor: index === 0 ? colors.primary : 'white',
+            backgroundColor: item.isChecked ? colors.primary : 'white',
           }}
         >
           <Text
             style={{
               ...fonts.regular14,
-              color: index === 0 ? 'white' : 'black',
+              color: item.isChecked ? 'white' : 'black',
             }}
           >
-            {item}
+            {item?.category?.name}
           </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
-  )
-}
-
-const ListFood = () => {
-  const renderItem = useCallback(({ item }: { item: any }) => {
-    return (
-      <TouchableOpacity style={styleListFood.v_container}>
-        <FstImage style={styleListFood.image} source={R.images.img_food} />
-        <View style={{ marginTop: 11, alignItems: 'center' }}>
-          <Text style={{ ...fonts.semi_bold15 }}>Red n hot pizza</Text>
-          <Text style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}>
-            Spicy chicken, beef
-          </Text>
-        </View>
-        <View style={styleListFood.v_row}>
-          <Text style={{ ...fonts.semi_bold14 }}>9.50 $ </Text>
-        </View>
-      </TouchableOpacity>
-    )
-  }, [])
-  const keyExtractor = useCallback(item => `${item.id}`, [])
-  return (
-    <FlatList
-      ListHeaderComponent={
-        <>
-          <Banner />
-          <InfoRestaurant />
-          <ListFoodFeatured />
-          <Category />
-        </>
-      }
-      style={styleListFood.v_listProduct}
-      columnWrapperStyle={styleListFood.v_column}
-      data={['alo', 'alo', 'alo', 'alo', 'alo']}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      showsVerticalScrollIndicator={false}
-      numColumns={2}
-    />
   )
 }
 

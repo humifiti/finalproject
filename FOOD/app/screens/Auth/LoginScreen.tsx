@@ -37,6 +37,7 @@ const LoginScreen = (props: any) => {
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
   const [isCheck, setIsCheck] = useState<boolean>(false)
+
   const requestLogin = async () => {
     let isValid = true
     let inputRef = null
@@ -208,7 +209,7 @@ const LoginScreen = (props: any) => {
                 />
               </Card>
             </ScrollView>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.v_back}
               onPress={() => {
                 dispatch(navigateSwitch(SCREEN_ROUTER.MAIN))
@@ -220,7 +221,7 @@ const LoginScreen = (props: any) => {
                   resizeMode="contain"
                 />
               }
-            />
+            /> */}
           </KeyboardAvoidingView>
         </>
       }

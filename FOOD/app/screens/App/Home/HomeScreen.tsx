@@ -8,6 +8,7 @@ import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
 import { useAppSelector } from '@app/store'
 import { colors, fonts } from '@app/theme'
 import { Permission, PERMISSION_TYPE } from '@app/utils/AppPermission'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
   Dimensions,
@@ -133,6 +134,7 @@ const Category = ({
   }, [])
 
   const getDataCategory = async () => {
+    showLoading()
     try {
       const res = await HomeApi.getCategory()
       const newData = res.data
@@ -146,7 +148,10 @@ const Category = ({
       })
       setDataCategory([...newData])
       setCategoryId(res.data[0].id)
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
   }
 
   const renderItem = ({ item }: { item: any }) => {
@@ -246,6 +251,7 @@ const ListRestaurant = ({ categoryId }: { categoryId: number }) => {
   }, [long, lat, categoryId])
 
   const getDataRestaurant = async () => {
+    showLoading()
     try {
       const res = await HomeApi.getRestaurant({
         category: categoryId,
@@ -253,7 +259,10 @@ const ListRestaurant = ({ categoryId }: { categoryId: number }) => {
         lng: long,
       })
       setDataRes(res.data)
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
   }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
@@ -354,10 +363,14 @@ const ListFood = () => {
   }, [])
 
   const getDataFood = async () => {
+    showLoading()
     try {
       const res = await HomeApi.getFood({ order_by: 'rating_desc' })
       setDataFood(res.data)
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
   }
 
   const renderItem = useCallback(({ item }: { item: any }) => {

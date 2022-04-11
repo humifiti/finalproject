@@ -1,13 +1,23 @@
 import { APP_SLICE, SCREEN_ROUTER } from '@app/constant/Constant'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
+import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
 import React, { useEffect } from 'react'
 import { Button, Text, View } from 'react-native'
 import { connect } from 'react-redux'
 
 const SplashScreen = (props: any) => {
   useEffect(() => {
-    props.navigateSwitch(SCREEN_ROUTER.MAIN)
+    handleNavigate()
   }, [])
+
+  const handleNavigate = async () => {
+    const token = await AsyncStorageService.getToken()
+    if (token) {
+      props.navigateSwitch(SCREEN_ROUTER.MAIN)
+    } else {
+      props.navigateSwitch(SCREEN_ROUTER.AUTH)
+    }
+  }
 
   return (
     <View
