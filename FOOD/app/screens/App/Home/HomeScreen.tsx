@@ -3,26 +3,67 @@ import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
-import { fonts } from '@app/theme'
-import React, { useEffect, useCallback } from 'react'
+import { updateLocation } from '@app/screens/locationReducer'
+import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
+import { useAppSelector } from '@app/store'
+import { colors, fonts } from '@app/theme'
+import { Permission, PERMISSION_TYPE } from '@app/utils/AppPermission'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
+  Dimensions,
   FlatList,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  Dimensions,
+  View,
 } from 'react-native'
+import Geolocation from 'react-native-geolocation-service'
+import { useDispatch } from 'react-redux'
 import HomeApi from './api/HomeApi'
-
 const { width } = Dimensions.get('window')
 const HomeScreen = () => {
+  const dispatch = useDispatch()
+  const [categoryId, setCategoryId] = useState(0)
   useEffect(() => {
-    return () => {}
+    requestPermission()
   }, [])
+
+  const requestPermission = async () => {
+    const token = await AsyncStorageService.getToken()
+    if (token) {
+      await Permission.requestMultiple([
+        PERMISSION_TYPE.fine_location,
+        PERMISSION_TYPE.coarse_location,
+      ])
+      getLocation()
+    }
+  }
+
+  const getLocation = async () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        console.log('current location', position)
+        dispatch(
+          updateLocation({
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+          })
+        )
+      },
+      error => {
+        // See error code charts below.
+        console.log(error.code, error.message)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000,
+      }
+    )
+  }
 
   return (
     <SafeAreaView style={styles.v_container}>
@@ -33,8 +74,8 @@ const HomeScreen = () => {
       >
         <Text style={styles.txt_title}>What would you like to order</Text>
         <Search />
-        <Category />
-        <ListRestaurant />
+        <Category setCategoryId={setCategoryId} />
+        <ListRestaurant categoryId={categoryId} />
         <ListFood />
       </ScrollView>
     </SafeAreaView>
@@ -80,37 +121,81 @@ const styleSearch = StyleSheet.create({
   },
 })
 
-const Category = () => {
-  // useEffect(() => {
-  //   getDataCategory()
-  // }, [])
+const Category = ({
+  setCategoryId,
+}: {
+  setCategoryId: React.Dispatch<React.SetStateAction<number>>
+}) => {
+  const [dataCategory, setDataCategory] = useState([])
+
+  useEffect(() => {
+    getDataCategory()
+  }, [])
 
   const getDataCategory = async () => {
     try {
-      await HomeApi.getCategory()
+      const res = await HomeApi.getCategory()
+      const newData = res.data
+
+      newData.forEach((value, index) => {
+        if (index === 0) {
+          newData[index].isChecked = true
+        } else {
+          newData[index].isChecked = false
+        }
+      })
+      setDataCategory([...newData])
+      setCategoryId(res.data[0].id)
     } catch (error) {}
   }
-  const data = [
-    { nameFood: 'Burger', imageFood: R.images.ic_bugger },
-    { nameFood: 'Donut', imageFood: R.images.ic_donut },
-    { nameFood: 'Pizza', imageFood: R.images.ic_pizza },
-    { nameFood: 'Mexican', imageFood: R.images.ic_mexican },
-    { nameFood: 'Asian', imageFood: R.images.ic_asian },
-  ]
-  const renderItem = useCallback(({ item }: { item: any }) => {
+
+  const renderItem = ({ item }: { item: any }) => {
     return (
-      <TouchableOpacity style={styleCategory.v_item}>
-        <FstImage style={styleCategory.icon} source={item.imageFood} />
-        <Text style={styleCategory.text}>{item.nameFood}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          const newData = [...dataCategory]
+
+          newData.forEach((value: any, index) => {
+            if (value.id !== item.id) {
+              newData[index].isChecked = false
+            } else if (value.id === item.id) {
+              newData[index].isChecked = true
+            }
+          })
+          setDataCategory([...newData])
+          setCategoryId(item.id)
+        }}
+        style={[
+          styleCategory.v_item,
+          {
+            backgroundColor: item.isChecked ? colors.primary : 'white',
+          },
+        ]}
+      >
+        <FstImage
+          style={styleCategory.icon}
+          source={{ uri: item?.icon?.url }}
+        />
+        <Text
+          numberOfLines={2}
+          style={[
+            styleCategory.text,
+            {
+              color: item.isChecked ? 'white' : colors.text.primary,
+            },
+          ]}
+        >
+          {item.name}
+        </Text>
       </TouchableOpacity>
     )
-  }, [])
+  }
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
       maxToRenderPerBatch={10}
       initialNumToRender={10}
-      data={data}
+      data={dataCategory}
       keyExtractor={keyExtractor}
       horizontal
       renderItem={renderItem}
@@ -120,7 +205,7 @@ const Category = () => {
 }
 const styleCategory = StyleSheet.create({
   v_item: {
-    height: 98,
+    // height: 98,
     width: 59,
     backgroundColor: 'white',
     marginLeft: 15,
@@ -135,32 +220,58 @@ const styleCategory = StyleSheet.create({
     borderRadius: 100,
     alignItems: 'center',
     marginBottom: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   icon: {
     width: 50,
     height: 50,
+    borderRadius: 50 / 2,
   },
   text: {
     marginTop: 15,
     ...fonts.regular11,
     color: '#67666D',
+    textAlign: 'center',
+    marginHorizontal: 5,
   },
 })
 
-const ListRestaurant = () => {
-  const dataRes = ['alo', 'alo', 'alo']
+const ListRestaurant = ({ categoryId }: { categoryId: number }) => {
+  const { lat, long } = useAppSelector(state => state.locationReducer)
+  const [dataRes, setDataRes] = useState([])
+
+  useEffect(() => {
+    getDataRestaurant()
+  }, [long, lat, categoryId])
+
+  const getDataRestaurant = async () => {
+    try {
+      const res = await HomeApi.getRestaurant({
+        category: categoryId,
+        lat: lat,
+        lng: long,
+      })
+      setDataRes(res.data)
+    } catch (error) {}
+  }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          NavigationUtil.navigate(SCREEN_ROUTER_APP.RESTAURANT_DETAIL)
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.RESTAURANT_DETAIL, {
+            id: item.id,
+          })
         }}
         style={styleListRes.v_container}
       >
-        <FstImage style={styleListRes.image} source={R.images.ic_restaurant} />
+        <FstImage
+          style={styleListRes.image}
+          source={{ uri: item?.logo?.url }}
+        />
         <View style={styleListRes.v_row}>
           <Text style={{ ...fonts.semi_bold15, marginRight: 5 }}>
-            McDonald’s
+            {item?.name}
           </Text>
           <FstImage style={styleListRes.icon} source={R.images.ic_tick} />
         </View>
@@ -237,7 +348,18 @@ const styleListRes = StyleSheet.create({
 })
 
 const ListFood = () => {
-  const dataRes = ['alo', 'alo', 'alo']
+  const [dataFood, setDataFood] = useState([])
+  useEffect(() => {
+    getDataFood()
+  }, [])
+
+  const getDataFood = async () => {
+    try {
+      const res = await HomeApi.getFood({ order_by: 'rating_desc' })
+      setDataFood(res.data)
+    } catch (error) {}
+  }
+
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity
@@ -246,11 +368,14 @@ const ListFood = () => {
         }}
         style={styleListFood.v_container}
       >
-        <FstImage style={styleListFood.image} source={R.images.img_food} />
-        <View style={{ marginTop: 11, alignItems: 'center' }}>
-          <Text style={{ ...fonts.semi_bold15 }}>Red n hot pizza</Text>
+        <FstImage
+          style={styleListFood.image}
+          source={{ uri: item?.images?.url }}
+        />
+        <View style={{ marginTop: 11, paddingLeft: 10 }}>
+          <Text style={{ ...fonts.semi_bold15 }}>{item?.name}</Text>
           <Text style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}>
-            Spicy chicken, beef
+            {item?.description}
           </Text>
         </View>
       </TouchableOpacity>
@@ -267,7 +392,7 @@ const ListFood = () => {
       <FlatList
         maxToRenderPerBatch={10}
         initialNumToRender={10}
-        data={dataRes}
+        data={dataFood}
         keyExtractor={keyExtractor}
         horizontal
         renderItem={renderItem}

@@ -39,8 +39,18 @@
 				</dict>
 			</dict>
 		</dict>
+		<key>NSCameraUsageDescription</key>
+		<string>$(PRODUCT_NAME) muốn truy cập Camera </string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>$(PRODUCT_NAME) muốn truy cập vị trí hiện tại của bạn để tìm cửa hàng gần nhất</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>$(PRODUCT_NAME) muốn truy cập vị trí hiện tại của bạn để tìm cửa hàng gần nhất</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string/>
+		<string>$(PRODUCT_NAME) muốn truy cập vị trí hiện tại của bạn để tìm cửa hàng gần nhất</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>$(PRODUCT_NAME) would like to save photos to your photo gallery</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>$(PRODUCT_NAME) muốn truy cập thư viện ảnh của bạn </string>
 		<key>UIAppFonts</key>
 		<array>
 			<string>AntDesign.ttf</string>

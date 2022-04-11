@@ -3,7 +3,7 @@ import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import NavigationUtil from '@app/navigation/NavigationUtil'
 import { colors, dimensions, fonts } from '@app/theme'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import {
   FlatList,
   Platform,
@@ -15,17 +15,31 @@ import {
   View,
 } from 'react-native'
 import FastImage from 'react-native-fast-image'
+import ProductApi from './api/ProductApi'
 
-const FoodDetail = () => {
+interface RestaurantProps {
+  route: { params: { id: number } }
+}
+
+const RestaurantDetail = (props: RestaurantProps) => {
+  useEffect(() => {
+    getDataRestaurantDetail()
+  }, [])
+
+  const getDataRestaurantDetail = async () => {
+    try {
+      await ProductApi.getRestaurantDetail({ id: props.route.params.id })
+    } catch (error) {}
+  }
   return (
     <SafeAreaView style={styles.v_container}>
-      <ScrollView style={styles.v_container}>
-        <Banner />
+      {/* <ScrollView style={styles.v_container}> */}
+      {/* <Banner />
         <InfoRestaurant />
         <ListFoodFeatured />
-        <Category />
-        <ListFood />
-      </ScrollView>
+        <Category /> */}
+      <ListFood />
+      {/* </ScrollView> */}
     </SafeAreaView>
   )
 }
@@ -253,6 +267,14 @@ const ListFood = () => {
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
+      ListHeaderComponent={
+        <>
+          <Banner />
+          <InfoRestaurant />
+          <ListFoodFeatured />
+          <Category />
+        </>
+      }
       style={styleListFood.v_listProduct}
       columnWrapperStyle={styleListFood.v_column}
       data={['alo', 'alo', 'alo', 'alo', 'alo']}
@@ -267,6 +289,7 @@ const ListFood = () => {
 const styleListFood = StyleSheet.create({
   v_listProduct: {
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
+    paddingHorizontal: 20,
     //backgroundColor: 'red',
   },
   v_column: {
@@ -302,7 +325,7 @@ const styleListFood = StyleSheet.create({
   },
 })
 
-export default FoodDetail
+export default RestaurantDetail
 
 const styles = StyleSheet.create({
   containerCheckBox: {
