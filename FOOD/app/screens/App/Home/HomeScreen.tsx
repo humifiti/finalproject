@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   v_container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   txt_title: {
     ...fonts.semi_bold26,

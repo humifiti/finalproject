@@ -1,21 +1,30 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { dimension } from '@app/constant/Theme'
 import { colors, dimensions, fonts } from '@app/theme'
-import React, { useCallback, useEffect } from 'react'
+import { formatNumber } from '@app/utils/Format'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   FlatList,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
+  View,
 } from 'react-native'
+import CartApi from './api/CartApi'
 
 const CartScreen = () => {
+  const [data, setData] = useState([])
   useEffect(() => {
-    return () => {}
+    getDataCart()
   }, [])
+
+  const getDataCart = async () => {
+    try {
+      const res = await CartApi.getCart()
+      setData(res.data)
+    } catch (error) {}
+  }
 
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
@@ -27,35 +36,24 @@ const CartScreen = () => {
         />
         <View style={styles.v_info}>
           <View>
-            <Text style={{ ...fonts.semi_bold18 }}>Red n hot pizza</Text>
-            <Text style={styles.txt_description}>Spicy chicken, beef</Text>
+            <Text style={{ ...fonts.semi_bold18 }}>{item?.food?.name}</Text>
+            <Text style={styles.txt_description}>
+              {item?.food?.description}
+            </Text>
           </View>
 
           <View style={styles.v_row}>
-            <Text
-              style={{ ...fonts.semi_bold14, color: colors.primary, flex: 1 }}
-            >
-              $<Text style={styles.txt_price}>9.50</Text>
+            <Text style={styles.txt_$}>
+              đ
+              <Text style={styles.txt_price}>
+                {formatNumber(item?.food?.price)}
+              </Text>
             </Text>
             <TouchableOpacity>
-              <FstImage
-                style={{ width: 24, height: 24 }}
-                source={R.images.ic_plus}
-              />
+              <FstImage style={styles.ic_plus} source={R.images.ic_plus} />
             </TouchableOpacity>
-            <Text
-              style={{
-                ...fonts.semi_bold16,
-                color: colors.primary,
-                marginHorizontal: 18,
-              }}
-            >
-              1
-            </Text>
-            <FstImage
-              style={{ width: 24, height: 24 }}
-              source={R.images.ic_plus}
-            />
+            <Text style={styles.txt_quantity}>{item.quantity}</Text>
+            <FstImage style={styles.ic_plus} source={R.images.ic_plus} />
           </View>
         </View>
       </View>
@@ -70,27 +68,8 @@ const CartScreen = () => {
         <ViewRow label={'Tax and Fees'} content={'$52.50'} />
         <ViewRow label={'Delivery'} content={'$52.50'} />
         <ViewRow label={'Total'} content={'$52.50'} />
-        <TouchableOpacity
-          style={{
-            alignSelf: 'center',
-            marginTop: 100,
-            backgroundColor: colors.primary,
-            width: dimensions.width / 2,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 15,
-            borderRadius: 26,
-          }}
-        >
-          <Text
-            style={{
-              ...fonts.semi_bold16,
-              color: 'white',
-              marginHorizontal: 18,
-            }}
-          >
-            CHECKOUT
-          </Text>
+        <TouchableOpacity style={styles.v_button}>
+          <Text style={styles.txt_checkOut}>CHECKOUT</Text>
         </TouchableOpacity>
       </>
     )
@@ -110,7 +89,7 @@ const CartScreen = () => {
           // contentContainerStyle={styles.v_list}
           // onRefresh={onRefreshData}
           // refreshing={false}
-          data={['alo', 'alo']}
+          data={data}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
@@ -121,10 +100,10 @@ const CartScreen = () => {
   )
 }
 
-const ViewRow = ({ label, content }: { label: string; content: strign }) => {
+const ViewRow = ({ label, content }: { label: string; content: string }) => {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 30 }}>
-      <Text style={{ ...fonts.semi_bold16, flex: 1 }}>{label}</Text>
+    <View style={styles.v_content}>
+      <Text style={styles.txt_label}>{label}</Text>
       <Text style={{ ...fonts.semi_bold16 }}>{content}</Text>
     </View>
   )
@@ -161,6 +140,44 @@ const styles = StyleSheet.create({
   txt_price: {
     ...fonts.semi_bold18,
     color: 'black',
+  },
+  txt_$: {
+    ...fonts.semi_bold14,
+    color: colors.primary,
+    flex: 1,
+  },
+  ic_plus: {
+    width: 24,
+    height: 24,
+  },
+  txt_quantity: {
+    ...fonts.semi_bold16,
+    color: colors.primary,
+    marginHorizontal: 18,
+  },
+  v_button: {
+    alignSelf: 'center',
+    marginTop: 100,
+    backgroundColor: colors.primary,
+    width: dimensions.width / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    borderRadius: 26,
+  },
+  txt_checkOut: {
+    ...fonts.semi_bold16,
+    color: 'white',
+    marginHorizontal: 18,
+  },
+  v_content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  txt_label: {
+    ...fonts.semi_bold16,
+    flex: 1,
   },
 })
 

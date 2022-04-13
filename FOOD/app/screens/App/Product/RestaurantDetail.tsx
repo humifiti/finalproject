@@ -398,7 +398,7 @@ const Category = ({
 const styleListFood = StyleSheet.create({
   v_listProduct: {
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   v_column: {
     justifyContent: 'space-between',
@@ -456,7 +456,6 @@ const styles = StyleSheet.create({
   },
   v_container: {
     flex: 1,
-    paddingHorizontal: 20,
     backgroundColor: 'white',
   },
   img_banner: {

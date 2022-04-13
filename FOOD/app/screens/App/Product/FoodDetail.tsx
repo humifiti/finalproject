@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import FastImage, { Source } from 'react-native-fast-image'
+import FastImage from 'react-native-fast-image'
 import ProductApi from './api/ProductApi'
 
 interface FoodProps {
@@ -51,7 +51,7 @@ const FoodDetail = (props: FoodProps) => {
     }
   }
   return (
-    <SafeAreaView style={styles.v_container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <ScrollView style={styles.v_container}>
         <FstImage style={styles.img_banner} source={R.images.img_food_banner} />
         <TouchableOpacity
