@@ -55,22 +55,25 @@ const CartScreen = () => {
     [dispatch]
   )
 
-  const handleRemoveItem = (food_id: number) => {
-    showConfirm(
-      R.strings().notification,
-      'Do you want to remove this food?',
-      async () => {
-        showLoading()
-        try {
-          await CartApi.deleteCart({ food_id })
-          dispatch(getListCart())
-        } catch (error) {
-        } finally {
-          hideLoading()
+  const handleRemoveItem = useCallback(
+    (food_id: number) => {
+      showConfirm(
+        R.strings().notification,
+        'Do you want to remove this food?',
+        async () => {
+          showLoading()
+          try {
+            await CartApi.deleteCart({ food_id })
+            dispatch(getListCart())
+          } catch (error) {
+          } finally {
+            hideLoading()
+          }
         }
-      }
-    )
-  }
+      )
+    },
+    [dispatch]
+  )
 
   const renderItem = useCallback(
     ({ item, index }: { item: any; index: number }) => {
@@ -139,9 +142,9 @@ const CartScreen = () => {
         </View>
       )
     },
-    []
+    [handleRemoveItem, handleUpdateQuantity]
   )
-  const keyExtractor = useCallback(item => `${item.id}`, [])
+  const keyExtractor = useCallback(item => `${item.food_id}`, [])
 
   return (
     <ScreenWrapper
