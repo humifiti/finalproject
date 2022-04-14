@@ -29,13 +29,13 @@ export default class Empty extends Component<EmptyProps> {
         }}
       >
         <FastImage
-          source={sourceImage || R.images.ic_empty}
+          source={sourceImage || R.images.img_empty}
           style={styles.imageEmpty}
           resizeMode="contain"
         />
-        <Text style={styles.textEmpty}>
+        {/* <Text style={styles.textEmpty}>
           {description || 'Bạn chưa có đơn hàng nào'}
-        </Text>
+        </Text> */}
       </View>
     )
   }
