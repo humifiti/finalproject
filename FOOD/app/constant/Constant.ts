@@ -21,6 +21,10 @@ const MAIN_TAB_CUSTOMER = {
   USER: 'USER',
 }
 
+export const GOONG_HOST = 'https://rsapi.goong.io/'
+
+export const api_key = '3yJu457TLe2c9bvAuzohv7ms6ds65uPRUnG587bi'
+
 const API_STATUS = {
   SUCCESS: 200,
   CREATED: 201,

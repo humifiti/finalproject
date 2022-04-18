@@ -1,12 +1,17 @@
 import R from '@app/assets/R'
+import { AutocompleteDropdown } from '@app/components/AutocompleteDropdown'
 import RNButton from '@app/components/RNButton'
 import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { colors } from '@app/theme'
-import React, { memo, useRef, useState } from 'react'
+import reactotron from '@app/config/ReactotronConfig'
+import { api_key, GOONG_HOST } from '@app/constant/Constant'
+import { colors, fonts } from '@app/theme'
+import axios from 'axios'
+import React, { memo, useCallback, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -26,6 +31,36 @@ const AddNewAddressComponent = (props: any) => {
   const phoneInputRef = useRef<TextInput>(null)
   const addressRef = useRef<RNTextInput>(null)
   const addressInputRef = useRef<TextInput>(null)
+  const [suggestionsList, setSuggestionsList] = useState([])
+
+  const getSuggestions = useCallback(async text => {
+    console.log('getSuggestions', text)
+    try {
+      const res = (
+        await axios.get(`${GOONG_HOST}Place/AutoComplete`, {
+          params: {
+            api_key: api_key,
+            input: text,
+            limit: 20,
+            radius: 1000,
+          },
+        })
+      ).data
+      reactotron.log!(res.predictions)
+      if (res.predictions) {
+        const suggestions = res.predictions.map((item: any, index: number) => ({
+          id: index,
+          title: item.description,
+          place_id: item.place_id,
+        }))
+        setSuggestionsList(suggestions)
+      } else {
+        setSuggestionsList([])
+      }
+    } catch (error) {
+    } finally {
+    }
+  }, [])
 
   const handleAddAddress = async () => {
     let isValid = true
@@ -42,6 +77,7 @@ const AddNewAddressComponent = (props: any) => {
       isValid = false
       if (!inputRef) inputRef = phoneInputRef
     }
+
     if (addressDetail.trim() === '' || !addressDetail) {
       addressRef.current?.onValidate()
       isValid = false
@@ -114,6 +150,40 @@ const AddNewAddressComponent = (props: any) => {
                 placeholderTextColor={colors.colorDefault.placeHolder}
                 isRequire
               />
+              <AutocompleteDropdown
+                controller={(controller: any) => {
+                  //dropdownController.current = controller
+                }}
+                onClear={() => {
+                  //setSuggestionsList([])
+                }}
+                direction={Platform.select({ ios: 'down' })}
+                debounce={600}
+                textInputProps={{
+                  placeholder: 'Tìm kiếm địa chỉ ...',
+                  style: {
+                    borderRadius: 12,
+                    backgroundColor: '#fff',
+                    color: colors.text,
+                    paddingLeft: 18,
+                    ...fonts.regular16,
+                  },
+                }}
+                suggestionsListMaxHeight={400}
+                rightButtonsContainerStyle={styles.rightButtonsContainer}
+                suggestionsListContainerStyle={styles.suggestionsListContainer}
+                inputContainerStyle={styles.inputContainerStyle}
+                containerStyle={styles.containerStyle}
+                useFilter={false}
+                clearOnFocus={true}
+                closeOnBlur={true}
+                onSelectItem={(item: any) => {
+                  //onSelectItem(item)
+                }}
+                onChangeText={getSuggestions}
+                dataSet={suggestionsList}
+                emptyResultText="Danh sách trống"
+              />
             </View>
 
             {/* {id && (
@@ -136,13 +206,12 @@ const AddNewAddressComponent = (props: any) => {
                 <View style={styles.line} />
               </>
             )} */}
-
-            <RNButton
-              style={styles.txt_save}
-              onPress={handleAddAddress}
-              title={'Save'}
-            />
           </ScrollView>
+          <RNButton
+            style={styles.txt_save}
+            onPress={handleAddAddress}
+            title={'Save'}
+          />
         </KeyboardAvoidingView>
       }
     />
@@ -150,6 +219,29 @@ const AddNewAddressComponent = (props: any) => {
 }
 
 const styles = StyleSheet.create({
+  containerStyle: { flexGrow: 1, flexShrink: 1 },
+
+  inputContainerStyle: {
+    backgroundColor: 'transparent',
+    shadowColor: '#00000099',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8.46,
+    elevation: 13,
+  },
+  suggestionsListContainer: {
+    borderRadius: 12,
+    backgroundColor: '#fff',
+  },
+  rightButtonsContainer: {
+    right: 8,
+    height: 30,
+    top: 6,
+    backgroundColor: '#fff',
+  },
   line: { backgroundColor: colors.backgroundColor, height: 2 },
   container_bottom_sheet: {
     marginBottom: 16,
@@ -198,7 +290,7 @@ const styles = StyleSheet.create({
   },
   txt_save: {
     marginHorizontal: 15,
-    marginTop: 40,
+    height: 45,
   },
   icon: {
     width: 24,

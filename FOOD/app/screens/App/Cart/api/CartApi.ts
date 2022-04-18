@@ -4,5 +4,5 @@ export default {
   updateCart: (payload: { food_id: number; quantity: number }) =>
     ApiClient.put(`/api/v1/cart`, payload),
   deleteCart: (payload: { food_id: number }) =>
-    ApiClient.delete(`/api/v1/cart`, { params: payload }),
+    ApiClient.delete(`/api/v1/cart/food/${payload.food_id}`, {}),
 }
