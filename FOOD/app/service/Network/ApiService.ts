@@ -39,7 +39,9 @@ const createAPI = () => {
         })
       } else if (data && data.code !== API_STATUS.UNAUTHORIZED) {
         if (data.message !== 'Phone number was not activated') {
-          showMessages(R.strings().notification, data.message)
+          if (data.message !== 'Foods need to be in the same restaurant') {
+            showMessages(R.strings().notification, data.message)
+          }
         }
       }
       return Promise.reject(error)

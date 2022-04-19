@@ -3,7 +3,7 @@ import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
 import NavigationUtil from '@app/navigation/NavigationUtil'
 import { colors, fonts } from '@app/theme'
-import { showMessages } from '@app/utils/AlertHelper'
+import { showConfirm, showMessages } from '@app/utils/AlertHelper'
 import { formatNumber } from '@app/utils/Format'
 import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { useEffect, useState } from 'react'
@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native'
 import FastImage from 'react-native-fast-image'
+import CartApi from '../Cart/api/CartApi'
 import ProductApi from './api/ProductApi'
 
 interface FoodProps {
@@ -43,8 +44,26 @@ const FoodDetail = (props: FoodProps) => {
   const handleAddCart = async () => {
     showLoading()
     try {
-      ProductApi.addCart({ food_id: data.id, quantity: count })
+      await ProductApi.addCart({ food_id: data.id, quantity: count })
       showMessages('Notification', 'Added successfully')
+    } catch (error: any) {
+      console.log(error?.response?.data.message)
+      showConfirm(
+        R.strings().notification,
+        'Foods need to be in the same restaurant',
+        () => {
+          handleAddCartError()
+        }
+      )
+    } finally {
+      hideLoading()
+    }
+  }
+  const handleAddCartError = async () => {
+    showLoading()
+    try {
+      await CartApi.deleteCartAll()
+      handleAddCart()
     } catch (error) {
     } finally {
       hideLoading()
@@ -196,6 +215,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: 9.11,
+    elevation: 6,
   },
   txt_log_out: {
     ...fonts.regular16,

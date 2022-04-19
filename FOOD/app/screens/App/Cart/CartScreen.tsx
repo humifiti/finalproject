@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import Empty from '@app/components/Empty/Empty'
 import FstImage from '@app/components/FstImage/FstImage'
@@ -88,13 +89,12 @@ const CartScreen = () => {
           />
           <View style={styles.v_info}>
             <View
-              // eslint-disable-next-line react-native/no-inline-styles
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
               }}
             >
-              <Text style={{ ...fonts.semi_bold18, flex: 1 }}>
+              <Text style={{ ...fonts.regular18, flex: 1 }}>
                 {item?.food?.name}
               </Text>
               <TouchableOpacity
@@ -174,7 +174,9 @@ const CartScreen = () => {
 
           <ViewBottom
             handleOrder={() => {
-              NavigationUtil.navigate(SCREEN_ROUTER_APP.CHECKOUT)
+              NavigationUtil.navigate(SCREEN_ROUTER_APP.CHECKOUT, {
+                subTotal: totalPrice,
+              })
             }}
             totalPrice={totalPrice}
           />
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   txt_price: {
-    ...fonts.semi_bold18,
+    ...fonts.regular18,
     color: 'black',
   },
   txt_$: {
