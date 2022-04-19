@@ -4,6 +4,7 @@ import ChangePassWordScreen from '@app/screens/App/Account/ChangePass'
 import DeliveryAddress from '@app/screens/App/Account/DeliveryAddress'
 import UpdateInfoUser from '@app/screens/App/Account/UpdateInfoUser'
 import CartScreen from '@app/screens/App/Cart/CartScreen'
+import CheckOutScreen from '@app/screens/App/Cart/CheckOutScreen'
 import SearchScreen from '@app/screens/App/Home/SearchScreen'
 import OrderScreen from '@app/screens/App/Order/OrderScreen'
 import FoodDetail from '@app/screens/App/Product/FoodDetail'
@@ -21,6 +22,7 @@ const {
   ADD_ADDRESS,
   CHANGE_PASS,
   CART,
+  CHECKOUT,
 } = SCREEN_ROUTER_APP
 const Stack = createStackNavigator()
 
@@ -34,6 +36,7 @@ const mainScreen = {
   [ADD_ADDRESS]: AddNewAddress,
   [CHANGE_PASS]: ChangePassWordScreen,
   [CART]: CartScreen,
+  [CHECKOUT]: CheckOutScreen,
 }
 
 export const StackAppCustomerScreen = () => {

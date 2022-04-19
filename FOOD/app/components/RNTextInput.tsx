@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     marginTop: '1%',
   },
   lines: {
-    height: 1.5,
+    height: 1,
     //width: width,
     backgroundColor: colors.line,
   },

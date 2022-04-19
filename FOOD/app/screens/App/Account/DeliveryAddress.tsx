@@ -1,10 +1,13 @@
 import R from '@app/assets/R'
+import Empty from '@app/components/Empty/Empty'
 import FstImage from '@app/components/FstImage/FstImage'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
 import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
 import NavigationUtil from '@app/navigation/NavigationUtil'
+import { useAppSelector } from '@app/store'
 import { colors } from '@app/theme'
-import React, { useCallback } from 'react'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
+import React, { useCallback, useEffect } from 'react'
 import {
   FlatList,
   StyleSheet,
@@ -12,82 +15,93 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useDispatch } from 'react-redux'
+import { getListAddress } from './slice/ListAddressSlice'
 
 interface ChooseInfoProps {
   route: {
     params: {
       isAccountScreen: boolean
-      callback: ({
-        nameCB,
-        phoneCB,
-        addressCB,
-        idCB,
-      }: {
-        nameCB: string
-        phoneCB: string
-        addressCB: string
-        idCB: number
-      }) => void
+      callback: ({ item }: { item: any }) => void
     }
   }
 }
 
-const DeliveryAddress = () => {
-  //   const dispatch = useDispatch()
+const DeliveryAddress = (props: any) => {
+  const dispatch = useDispatch()
 
-  //   const { isLoading, isError, data } = useAppSelector(
-  //     state => state.listAddressSlice
-  //   )
-  //   const isAccountScreen = props?.route?.params?.isAccountScreen
+  const { isLoading, isError, data } = useAppSelector(
+    state => state.listAddressReducer
+  )
+  const isAccountScreen = props?.route?.params?.isAccountScreen
 
   //   const [body, setBody] = useState({
   //     page: DEFAULT_PARAMS.PAGE,
   //     limit: DEFAULT_PARAMS.LIMIT,
   //   })
 
-  //   useEffect(() => {
-  //     getData()
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [body])
+  useEffect(() => {
+    getData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  //   const getData = () => {
-  //     dispatch(getListAddress(body))
-  //   }
+  const getData = () => {
+    dispatch(getListAddress())
+  }
 
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <>
         <TouchableOpacity
-          //   onPress={() => {
-          //     NavigationUtil.navigate(SCREEN_ROUTER_APP.ADD_ADDRESS)
-          //   }}
+          onPress={() => {
+            if (isAccountScreen) {
+              NavigationUtil.navigate(SCREEN_ROUTER_APP.ADD_ADDRESS, {
+                id: item.id,
+                name: item.name,
+                phone: item.phone,
+                address: item.address,
+                is_default: item.is_default,
+                lat: item.lat,
+                lng: item.lng,
+              })
+            } else {
+              props.route?.params.callback({
+                item,
+              })
+              NavigationUtil.goBack()
+            }
+          }}
           style={styles.v_item}
         >
-          <FstImage style={styles.ic_location} source={R.images.ic_location4} />
+          <FstImage
+            style={styles.ic_location}
+            source={
+              item.is_default ? R.images.ic_location4 : R.images.ic_location3
+            }
+          />
           <View style={styles.v_address}>
             <Text
               style={styles.txt_info_user}
-              children={`Nguyễn Thị Thanh Hường | 0767332485`}
+              children={`${item?.name} | ${item?.phone}`}
             />
-            <Text
-              style={styles.txt_address}
-              children="Số 8 Tôn Thất Thuyết, Cầu Giấy, Hà Nội"
-              // children={`${item.address}, ${item.ward_name}, ${item.district_name}, ${item.province_name}.`}
-            />
+            <Text style={styles.txt_address} children={item?.address} />
           </View>
         </TouchableOpacity>
         <View style={styles.v_line} />
       </>
     )
   }, [])
-  //   const onRefreshData = () => {
-  //     setBody({
-  //       ...body,
-  //       page: DEFAULT_PARAMS.PAGE,
-  //     })
-  //   }
+  const onRefreshData = () => {
+    getData()
+  }
 
   const keyExtractor = useCallback(item => `${item.id}`, [])
+
+  if (isLoading) {
+    showLoading()
+  } else {
+    hideLoading()
+  }
 
   return (
     <ScreenWrapper
@@ -112,14 +126,12 @@ const DeliveryAddress = () => {
             />
             <Text style={styles.txt_add_address} children={'Add new address'} />
           </TouchableOpacity>
-          {/* {data.length === 0 && (
-            <Empty description={R.strings().list_address_empty} />
-          )} */}
+          {data.length === 0 && <Empty description={'Not found'} />}
           <FlatList
-            // onRefresh={onRefreshData}
-            // refreshing={false}
+            onRefresh={onRefreshData}
+            refreshing={false}
             contentContainerStyle={styles.v_list}
-            data={['alo', 'alo', 'alo']}
+            data={data}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}

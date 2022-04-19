@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import { AutocompleteDropdown } from '@app/components/AutocompleteDropdown'
 import RNButton from '@app/components/RNButton'
@@ -5,33 +6,52 @@ import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
 import reactotron from '@app/config/ReactotronConfig'
 import { api_key, GOONG_HOST } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { colors, fonts } from '@app/theme'
+import { showMessages } from '@app/utils/AlertHelper'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import axios from 'axios'
 import React, { memo, useCallback, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
+  Switch,
+  Text,
   TextInput,
   View,
 } from 'react-native'
+import { getBottomSpace, isIphoneX } from 'react-native-iphone-x-helper'
+import { useDispatch } from 'react-redux'
+import AddressApi from './api/AddressApi'
+import { getListAddress } from './slice/ListAddressSlice'
 
 const AddNewAddressComponent = (props: any) => {
   const [name, setName] = useState<string>(props.route.params?.name || '')
   const [phone, setPhone] = useState<string>(props.route.params?.phone || '')
-  const [addressDetail, setAddressDetail] = useState<string>(
-    props.route.params?.address || ''
+  const id = props?.route.params?.id
+  const [isEnabled, setIsEnabled] = useState<boolean>(
+    props.route.params?.is_default === true ? true : false
   )
+  const dispatch = useDispatch()
 
   const nameRef = useRef<RNTextInput>(null)
   const nameInputRef = useRef<TextInput>(null)
   const phoneRef = useRef<RNTextInput>(null)
   const phoneInputRef = useRef<TextInput>(null)
-  const addressRef = useRef<RNTextInput>(null)
-  const addressInputRef = useRef<TextInput>(null)
-  const [suggestionsList, setSuggestionsList] = useState([])
+
+  const [suggestionsList, setSuggestionsList] = useState<any>(
+    id ? [{ id: '1', title: props.route.params?.address }] : []
+  )
+  const location = useRef<any>(
+    props.route.params?.lat
+      ? [props.route.params?.lng, props.route.params?.lat]
+      : []
+  )
+  const address = useRef<string>(props.route.params?.address || '')
+
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState)
 
   const getSuggestions = useCallback(async text => {
     console.log('getSuggestions', text)
@@ -62,6 +82,31 @@ const AddNewAddressComponent = (props: any) => {
     }
   }, [])
 
+  const onSelectItem = async (item: any) => {
+    address.current = item.title
+
+    console.log(item)
+    if (item.place_id) {
+      try {
+        const res = (
+          await axios.get(`${GOONG_HOST}Place/Detail`, {
+            params: {
+              api_key: api_key,
+              place_id: item.place_id,
+            },
+          })
+        ).data
+
+        location.current = [
+          res.result.geometry.location.lng,
+          res.result.geometry.location.lat,
+        ]
+      } catch (error) {
+      } finally {
+      }
+    }
+  }
+
   const handleAddAddress = async () => {
     let isValid = true
     let inputRef = null
@@ -77,17 +122,38 @@ const AddNewAddressComponent = (props: any) => {
       isValid = false
       if (!inputRef) inputRef = phoneInputRef
     }
-
-    if (addressDetail.trim() === '' || !addressDetail) {
-      addressRef.current?.onValidate()
-      isValid = false
-      if (!inputRef) inputRef = addressInputRef
+    if (location.current.length === 0) {
+      showMessages(R.strings().notification, 'Please update address')
     }
-
     if (!isValid) {
       if (inputRef) inputRef.current?.focus()
       return
     }
+    const payload = {
+      address_id: id ? id : undefined,
+      city_id: 1,
+      address: address.current,
+      lat: location.current[1],
+      lng: location.current[0],
+      name: name,
+      phone: phone,
+      is_default: isEnabled,
+    }
+    showLoading()
+    try {
+      if (id) {
+        await AddressApi.updateAddress(payload)
+      } else {
+        await AddressApi.createAddress(payload)
+      }
+
+      dispatch(getListAddress())
+      NavigationUtil.goBack()
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+    reactotron.log!(payload)
   }
 
   return (
@@ -106,11 +172,17 @@ const AddNewAddressComponent = (props: any) => {
           style={styles.v_keyboard}
         >
           <View style={styles.line} />
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            style={styles.v_scroll}
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={styles.v_scroll}>
+            <View style={styles.v_row}>
+              <Text style={styles.text} children={'Set as default address'} />
+              <Switch
+                trackColor={{ false: '#CED4DA', true: colors.primary }}
+                thumbColor={'white'}
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+            </View>
+            <View style={styles.line} />
             <View style={styles.v_input}>
               <RNTextInput
                 autoCapitalize="none"
@@ -124,6 +196,7 @@ const AddNewAddressComponent = (props: any) => {
                 maxLength={55}
                 placeholderTextColor={colors.colorDefault.placeHolder}
                 isRequire
+                containerStyle={{ marginTop: 10 }}
               />
               <RNTextInput
                 ref={phoneRef}
@@ -138,29 +211,19 @@ const AddNewAddressComponent = (props: any) => {
                 isRequire
                 maxLength={10}
               />
+              <Text style={styles.title}>
+                Address <Text children="*" style={{ color: 'red' }} />
+              </Text>
 
-              <RNTextInput
-                ref={addressRef}
-                refs={addressInputRef}
-                title={'Address'}
-                value={addressDetail}
-                placeholder={'Enter your address'}
-                keyboardType="default"
-                onChangeText={setAddressDetail}
-                placeholderTextColor={colors.colorDefault.placeHolder}
-                isRequire
-              />
               <AutocompleteDropdown
-                controller={(controller: any) => {
-                  //dropdownController.current = controller
-                }}
+                initialValue={{ id: '1' }}
                 onClear={() => {
-                  //setSuggestionsList([])
+                  setSuggestionsList([])
                 }}
                 direction={Platform.select({ ios: 'down' })}
                 debounce={600}
                 textInputProps={{
-                  placeholder: 'Tìm kiếm địa chỉ ...',
+                  placeholder: 'Search address ...',
                   style: {
                     borderRadius: 12,
                     backgroundColor: '#fff',
@@ -173,16 +236,24 @@ const AddNewAddressComponent = (props: any) => {
                 rightButtonsContainerStyle={styles.rightButtonsContainer}
                 suggestionsListContainerStyle={styles.suggestionsListContainer}
                 inputContainerStyle={styles.inputContainerStyle}
-                containerStyle={styles.containerStyle}
+                containerStyle={[
+                  styles.containerStyle,
+                  Platform.select({ ios: { zIndex: 1 } }),
+                ]}
                 useFilter={false}
                 clearOnFocus={true}
                 closeOnBlur={true}
                 onSelectItem={(item: any) => {
-                  //onSelectItem(item)
+                  onSelectItem(item)
                 }}
                 onChangeText={getSuggestions}
+                // dataSet={[
+                //   { id: '1', title: 'Alpha' },
+                //   { id: '2', title: 'Beta' },
+                //   { id: '3', title: 'Gamma' },
+                // ]}
                 dataSet={suggestionsList}
-                emptyResultText="Danh sách trống"
+                emptyResultText="Not found"
               />
             </View>
 
@@ -206,7 +277,7 @@ const AddNewAddressComponent = (props: any) => {
                 <View style={styles.line} />
               </>
             )} */}
-          </ScrollView>
+          </View>
           <RNButton
             style={styles.txt_save}
             onPress={handleAddAddress}
@@ -219,7 +290,17 @@ const AddNewAddressComponent = (props: any) => {
 }
 
 const styles = StyleSheet.create({
-  containerStyle: { flexGrow: 1, flexShrink: 1 },
+  title: {
+    fontFamily: R.fonts.san_regular,
+    fontSize: 14,
+    color: colors.label,
+    marginBottom: 10,
+  },
+  containerStyle: {
+    flexGrow: 1,
+    flexShrink: 1,
+    marginBottom: 50,
+  },
 
   inputContainerStyle: {
     backgroundColor: 'transparent',
@@ -256,9 +337,7 @@ const styles = StyleSheet.create({
     paddingBottom: 7,
   },
   v_scroll: {
-    backgroundColor: 'white',
     flex: 1,
-    paddingTop: 20,
   },
   ic_check: {
     width: 18,
@@ -278,8 +357,8 @@ const styles = StyleSheet.create({
   v_row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
   },
 
   text: {
@@ -291,6 +370,7 @@ const styles = StyleSheet.create({
   txt_save: {
     marginHorizontal: 15,
     height: 45,
+    marginBottom: isIphoneX() ? getBottomSpace() : 20,
   },
   icon: {
     width: 24,

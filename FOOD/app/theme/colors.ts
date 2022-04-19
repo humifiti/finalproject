@@ -1,6 +1,6 @@
 export const colors = {
   label: '#262626',
-  line: '#BFBFBF',
+  line: '#CED4DA',
   primary: '#FE724C',
   backgroundColor: '#F5F5F5',
   white: '#ffffff',

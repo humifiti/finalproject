@@ -2,6 +2,8 @@ import R from '@app/assets/R'
 import Empty from '@app/components/Empty/Empty'
 import FstImage from '@app/components/FstImage/FstImage'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { useAppDispatch, useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
 import { showConfirm } from '@app/utils/AlertHelper'
@@ -170,19 +172,15 @@ const CartScreen = () => {
             // ListFooterComponent={renderFooter}
           />
 
-          <ViewBottom totalPrice={totalPrice} />
+          <ViewBottom
+            handleOrder={() => {
+              NavigationUtil.navigate(SCREEN_ROUTER_APP.CHECKOUT)
+            }}
+            totalPrice={totalPrice}
+          />
         </View>
       }
     />
-  )
-}
-
-const ViewRow = ({ label, content }: { label: string; content: string }) => {
-  return (
-    <View style={styles.v_content}>
-      <Text style={styles.txt_label}>{label}</Text>
-      <Text style={{ ...fonts.semi_bold16 }}>{content}</Text>
-    </View>
   )
 }
 
@@ -190,9 +188,7 @@ const ViewBottom = ({
   totalPrice,
   handleOrder,
 }: {
-  checkAll: boolean
   totalPrice: number
-  handleCheckTotal: () => void
   handleOrder: () => void
 }) => {
   return (

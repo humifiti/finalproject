@@ -27,7 +27,9 @@ const BodyAccountScreen = () => {
         img={R.images.ic_address}
         title={'Delivery Address'}
         action={() => {
-          NavigationUtil.navigate(SCREEN_ROUTER_APP.DELIVERY_ADDRESS)
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.DELIVERY_ADDRESS, {
+            isAccountScreen: true,
+          })
         }}
       />
 
