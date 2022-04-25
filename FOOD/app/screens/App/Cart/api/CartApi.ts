@@ -10,4 +10,6 @@ export default {
   checkOutByMomo: (payload: { user_addr_id: number }) =>
     ApiClient.post(`/api/v1/order/momo`, payload),
   deleteCartAll: () => ApiClient.delete(`/api/v1/cart`, {}),
+  checkOutByCrypto: (payload: { user_addr_id: number }) =>
+    ApiClient.post(`/api/v1/order/crypto`, payload),
 }

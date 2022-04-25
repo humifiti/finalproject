@@ -5,7 +5,8 @@ import { colors, fonts } from '@app/theme'
 import { Tab, Tabs } from 'native-base'
 import React, { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import ListOrder from './ListOrder'
+import ListOrderCurrent from './ListOrderCurrent'
+import ListOrdered from './ListOrdered'
 
 const OrderScreen = () => {
   const [page, setPage] = useState(0)
@@ -30,10 +31,10 @@ const OrderScreen = () => {
             renderTabBar={() => <TabBarComponent />}
           >
             <Tab heading={'Upcoming'}>
-              <ListOrder type={1} />
+              <ListOrderCurrent type={1} />
             </Tab>
             <Tab heading={'History'}>
-              <ListOrder type={2} />
+              <ListOrdered type={2} />
             </Tab>
           </Tabs>
         </View>

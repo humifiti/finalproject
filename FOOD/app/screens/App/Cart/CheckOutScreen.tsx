@@ -1,31 +1,48 @@
 /* eslint-disable react-native/no-inline-styles */
+import R from '@app/assets/R'
+import FstImage from '@app/components/FstImage/FstImage'
+import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
+import { colors, fonts } from '@app/theme'
+import { showMessages } from '@app/utils/AlertHelper'
+import { formatNumber } from '@app/utils/Format'
+import LinkingUtils, { LINKING_TYPE } from '@app/utils/LinkingUtils'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
+import React, { useEffect, useRef, useState } from 'react'
 import {
+  ScrollView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  ScrollView,
+  View,
 } from 'react-native'
-import React, { useEffect, useState } from 'react'
 import AddressApi from '../Account/api/AddressApi'
-import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
-import { colors, fonts } from '@app/theme'
-import FstImage from '@app/components/FstImage/FstImage'
-import R from '@app/assets/R'
-import NavigationUtil from '@app/navigation/NavigationUtil'
-import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
-import { formatNumber } from '@app/utils/Format'
 import CartApi from './api/CartApi'
-import RNButton from '@app/components/RNButton'
-import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
-import LinkingUtils, { LINKING_TYPE } from '@app/utils/LinkingUtils'
 
 const CheckOutScreen = (props: any) => {
   const [addressDefault, setAddressDefault] = useState<any>(null)
   const [deliveryFee, setDeliveryFee] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
+  const [dataPayment, setDataPayment] = useState([
+    {
+      id: 1,
+      namePayment: 'Momo',
+      imagePayment: R.images.ic_momo,
+      isSelected: false,
+    },
+    {
+      id: 2,
+      namePayment: 'Crypto',
+      imagePayment: R.images.ic_coin,
+      isSelected: false,
+    },
+  ])
+  const paymentMethod = useRef(0)
+
   useEffect(() => {
     getAddressDefault()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getAddressDefault = async () => {
@@ -49,18 +66,46 @@ const CheckOutScreen = (props: any) => {
   }
 
   const checkOut = async () => {
+    if (paymentMethod.current === 0) {
+      showMessages(R.strings().notification, 'Please choose payment method')
+      return
+    }
     showLoading()
     try {
-      const res = await CartApi.checkOutByMomo({
-        user_addr_id: addressDefault.id,
-      })
-      LinkingUtils(LINKING_TYPE.WEB, res.data.payUrl)
+      const res =
+        paymentMethod.current === 1
+          ? await CartApi.checkOutByMomo({
+              user_addr_id: addressDefault.id,
+            })
+          : await CartApi.checkOutByCrypto({
+              user_addr_id: addressDefault.id,
+            })
+      LinkingUtils(
+        LINKING_TYPE.WEB,
+        paymentMethod.current === 1 ? res.data.payUrl : res.data.app
+      )
       NavigationUtil.navigate(SCREEN_ROUTER_APP.ORDER)
     } catch (error) {
     } finally {
       hideLoading()
     }
   }
+  const selectPayment = async (item: { id: number }) => {
+    const newData = [...dataPayment]
+
+    var indexCheck = newData.findIndex(value => value.id === item.id)
+
+    newData[indexCheck].isSelected = true
+    newData.forEach((value, index) => {
+      if (index !== indexCheck) {
+        newData[index].isSelected = false
+      }
+    })
+    paymentMethod.current = item.id
+
+    setDataPayment([...newData])
+  }
+
   return (
     <ScreenWrapper
       back
@@ -98,10 +143,38 @@ const CheckOutScreen = (props: any) => {
             </View>
           </View>
           <Text style={styles.txt_payment}>Payment Method</Text>
-          <FstImage
+
+          {dataPayment.map(item => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  selectPayment(item)
+                }}
+                style={[
+                  styles.v_item_payment,
+                  { borderColor: item.isSelected ? colors.primary : '#D0DBEA' },
+                ]}
+              >
+                <FstImage
+                  style={styles.imagePayment}
+                  source={item.imagePayment}
+                />
+                <Text
+                  style={[
+                    styles.textPayment,
+                    { color: item.isSelected ? colors.primary : '#D0DBEA' },
+                  ]}
+                >
+                  {item.namePayment}
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+
+          {/* <FstImage
             style={{ width: 50, height: 50, marginTop: 20, marginBottom: 30 }}
             source={R.images.ic_momo}
-          />
+          /> */}
           <View style={styles.v_price}>
             <ViewRow
               label="Subtotal"
@@ -114,9 +187,7 @@ const CheckOutScreen = (props: any) => {
             <ViewRow label="Total" content={`${formatNumber(totalPrice)} đ`} />
           </View>
           <TouchableOpacity onPress={checkOut} style={styles.v_button}>
-            <Text style={{ ...fonts.semi_bold16, color: 'white' }}>
-              CONFIRM ORDER
-            </Text>
+            <Text style={styles.txt_confirm}>CONFIRM ORDER</Text>
           </TouchableOpacity>
         </ScrollView>
       }
@@ -144,7 +215,23 @@ const ViewRow = ({ label, content }: { label: string; content: string }) => {
 export default CheckOutScreen
 
 const styles = StyleSheet.create({
+  textPayment: {
+    ...fonts.regular18,
+    fontWeight: '500',
+    marginLeft: 15,
+  },
+  imagePayment: { width: 45, height: 45 },
+  v_item_payment: {
+    marginBottom: 20,
+    padding: 15,
+    borderWidth: 1.5,
+    borderColor: '#D0DBEA',
+    borderRadius: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   v_button: {
+    marginBottom: 100,
     paddingHorizontal: 56,
     paddingVertical: 20,
     backgroundColor: colors.primary,
@@ -161,6 +248,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   v_price: {
+    marginTop: 20,
     paddingHorizontal: 20,
     backgroundColor: 'white',
     paddingTop: 20,
@@ -207,5 +295,10 @@ const styles = StyleSheet.create({
   txt_payment: {
     ...fonts.semi_bold18,
     marginTop: 40,
+    marginBottom: 20,
+  },
+  txt_confirm: {
+    ...fonts.semi_bold16,
+    color: 'white',
   },
 })

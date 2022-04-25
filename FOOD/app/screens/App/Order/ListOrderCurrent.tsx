@@ -1,7 +1,10 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
+import { DEFAULT_PARAMS } from '@app/constant/Constant'
+import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
-import React, { useCallback } from 'react'
+import DateUtil from '@app/utils/DateUtil'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   FlatList,
   Platform,
@@ -10,16 +13,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useDispatch } from 'react-redux'
+import { getListOrderCurrent } from './slice/ListOrderCurrentSlice'
 
 interface ListOrderProps {
   type: number
 }
-const ListOrder = (props: ListOrderProps) => {
+const ListOrderCurrent = (props: ListOrderProps) => {
+  const dispatch = useDispatch()
+  const { isLoading, isError, data } = useAppSelector(
+    state => state.listOrderCurrentReducer
+  )
+
+  const [body, setBody] = useState({
+    page: DEFAULT_PARAMS.PAGE,
+    limit: DEFAULT_PARAMS.LIMIT,
+  })
+
+  useEffect(() => {
+    getData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body])
+
+  const getData = () => {
+    dispatch(getListOrderCurrent(body))
+  }
   const { type } = props
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity style={styleListRes.v_container}>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={styleListRes.v_row2}>
           <View style={styleListRes.v_item}>
             <FstImage
               style={styleListRes.image}
@@ -28,7 +51,9 @@ const ListOrder = (props: ListOrderProps) => {
           </View>
           <View style={styleListRes.v_info}>
             <View style={styleListRes.v_row}>
-              <Text style={styleListRes.txt_time}>20 Jun, 10:30</Text>
+              <Text style={styleListRes.txt_time}>
+                {DateUtil.formatDateTime(item.created_at)}
+              </Text>
               <View style={styleListRes.v_dot} />
               <Text style={styleListRes.txt_count}>3 item</Text>
               <Text style={{ ...fonts.regular16, color: colors.primary }}>
@@ -48,21 +73,14 @@ const ListOrder = (props: ListOrderProps) => {
             </View>
           </View>
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 25,
-            justifyContent: 'center',
-          }}
-        >
+        <View style={styleListRes.v_button}>
           <TouchableOpacity style={styleListRes.button1}>
             <Text style={{ ...fonts.semi_bold16 }}>
               {type === 1 ? 'Cancel' : 'Rate'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styleListRes.button2}>
-            <Text style={{ ...fonts.semi_bold16, color: 'white' }}>
+            <Text style={styleListRes.text}>
               {type === 1 ? 'TrackOrder' : 'Re-Order'}
             </Text>
           </TouchableOpacity>
@@ -74,7 +92,7 @@ const ListOrder = (props: ListOrderProps) => {
   return (
     <FlatList
       style={styleListRes.v_listProduct}
-      data={['alo', 'alo', 'alo', 'alo', 'alo']}
+      data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
@@ -82,9 +100,19 @@ const ListOrder = (props: ListOrderProps) => {
   )
 }
 
-export default ListOrder
+export default ListOrderCurrent
 
 const styleListRes = StyleSheet.create({
+  v_row2: {
+    flexDirection: 'row',
+  },
+  text: { ...fonts.semi_bold16, color: 'white' },
+  v_button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 25,
+    justifyContent: 'center',
+  },
   v_listProduct: {
     paddingHorizontal: 25,
     paddingBottom: Platform.OS === 'ios' ? 60 : 80,
@@ -99,7 +127,7 @@ const styleListRes = StyleSheet.create({
       width: 9,
       height: 5,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.12,
     shadowRadius: 10,
 
     elevation: 6,
@@ -185,7 +213,7 @@ const styleListRes = StyleSheet.create({
       width: 9,
       height: 5,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.12,
     shadowRadius: 10,
 
     elevation: 6,

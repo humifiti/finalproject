@@ -17,6 +17,7 @@ const images = {
   ic_checked: require('./images/ic_checked.png'),
   ic_checked2: require('./images/ic_checked2.png'),
   ic_chevron_right: require('./images/ic_chevron_right.png'),
+  ic_coin: require('./images/ic_coin.png'),
   ic_delete: require('./images/ic_delete.png'),
   ic_delivery: require('./images/ic_delivery.png'),
   ic_donut: require('./images/ic_donut.png'),

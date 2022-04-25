@@ -33,7 +33,7 @@ const initState = {
 export const getListOrderCurrent = createAsyncThunk(
   'ListOrderCurrentSlice',
   async (payload: any) => {
-    const res = await OrderApi.getListOrder(payload)
+    const res = await OrderApi.getListOrderCurrent(payload)
     return res
   }
 )

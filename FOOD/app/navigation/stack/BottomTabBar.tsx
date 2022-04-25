@@ -122,20 +122,7 @@ export const MainTab = (route: any) => {
         },
         tabBarLabel: ({ focused }) => {
           const color = focused ? colors.primary : colors.focus
-          return (
-            <Text
-              style={[
-                styles.txtLabel,
-                {
-                  color: color,
-                  fontSize: 12,
-                },
-              ]}
-              numberOfLines={1}
-            >
-              {tabBarLabel[route.name]}
-            </Text>
-          )
+          return <></>
         },
         tabBarButton: props => {
           return (
