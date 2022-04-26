@@ -1,6 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import { SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { colors, fonts } from '@app/theme'
 import { Tab, Tabs } from 'native-base'
 import React, { useState } from 'react'
@@ -16,10 +18,12 @@ const OrderScreen = () => {
   }
   return (
     <ScreenWrapper
-      unsafe
       color="black"
       backgroundHeader="white"
       back
+      onPressButtonBack={() => {
+        NavigationUtil.navigate(SCREEN_ROUTER_APP.USER)
+      }}
       forceInset={['left']}
       titleHeader={'My Orders'}
       children={

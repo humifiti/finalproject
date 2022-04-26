@@ -4,6 +4,8 @@ import { DEFAULT_PARAMS } from '@app/constant/Constant'
 import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
 import DateUtil from '@app/utils/DateUtil'
+import { formatNumber } from '@app/utils/Format'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
   FlatList,
@@ -39,6 +41,13 @@ const ListOrderCurrent = (props: ListOrderProps) => {
     dispatch(getListOrderCurrent(body))
   }
   const { type } = props
+
+  if (isLoading) {
+    showLoading()
+  } else {
+    hideLoading()
+  }
+
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity style={styleListRes.v_container}>
@@ -54,14 +63,14 @@ const ListOrderCurrent = (props: ListOrderProps) => {
               <Text style={styleListRes.txt_time}>
                 {DateUtil.formatDateTime(item.created_at)}
               </Text>
-              <View style={styleListRes.v_dot} />
-              <Text style={styleListRes.txt_count}>3 item</Text>
               <Text style={{ ...fonts.regular16, color: colors.primary }}>
-                $15.30
+                {`${formatNumber(item.total_price)} đ`}
               </Text>
             </View>
             <View style={styleListRes.v_name}>
-              <Text style={{ ...fonts.semi_bold14 }}>Pizza Hut</Text>
+              <Text style={{ ...fonts.semi_bold14 }}>
+                {item?.restaurant?.name}
+              </Text>
               <FstImage
                 style={{ width: 8, height: 8, marginLeft: 5 }}
                 source={R.images.ic_tick}
@@ -87,7 +96,9 @@ const ListOrderCurrent = (props: ListOrderProps) => {
         </View>
       </TouchableOpacity>
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
@@ -103,6 +114,7 @@ const ListOrderCurrent = (props: ListOrderProps) => {
 export default ListOrderCurrent
 
 const styleListRes = StyleSheet.create({
+  image_tick: { width: 8, height: 8, marginLeft: 5 },
   v_row2: {
     flexDirection: 'row',
   },
@@ -163,6 +175,7 @@ const styleListRes = StyleSheet.create({
   },
   txt_time: {
     ...fonts.regular12,
+    flex: 1,
     color: '#9796A1',
     fontWeight: '400',
     marginRight: 10,
