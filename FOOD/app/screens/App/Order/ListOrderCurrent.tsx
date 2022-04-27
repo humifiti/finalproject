@@ -8,6 +8,7 @@ import { formatNumber } from '@app/utils/Format'
 import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
+  ActivityIndicator,
   FlatList,
   Platform,
   StyleSheet,
@@ -23,7 +24,7 @@ interface ListOrderProps {
 }
 const ListOrderCurrent = (props: ListOrderProps) => {
   const dispatch = useDispatch()
-  const { isLoading, isError, data } = useAppSelector(
+  const { isLoading, isError, data, isLastPage, isLoadMore } = useAppSelector(
     state => state.listOrderCurrentReducer
   )
 
@@ -31,6 +32,8 @@ const ListOrderCurrent = (props: ListOrderProps) => {
     page: DEFAULT_PARAMS.PAGE,
     limit: DEFAULT_PARAMS.LIMIT,
   })
+
+  var onEndReachedCalledDuringMomentum = true
 
   useEffect(() => {
     getData()
@@ -40,7 +43,27 @@ const ListOrderCurrent = (props: ListOrderProps) => {
   const getData = () => {
     dispatch(getListOrderCurrent(body))
   }
+
+  const onRefreshData = () => {
+    setBody({
+      ...body,
+      page: DEFAULT_PARAMS.PAGE,
+    })
+  }
   const { type } = props
+
+  const onMomentumScrollBegin = () => {
+    onEndReachedCalledDuringMomentum = false
+  }
+
+  const handleLoadMore = () => {
+    if (!onEndReachedCalledDuringMomentum && !isLastPage && !isLoadMore) {
+      setBody({
+        ...body,
+        page: body.page + 1,
+      })
+    }
+  }
 
   if (isLoading) {
     showLoading()
@@ -55,7 +78,11 @@ const ListOrderCurrent = (props: ListOrderProps) => {
           <View style={styleListRes.v_item}>
             <FstImage
               style={styleListRes.image}
-              source={R.images.img_pizza_hut}
+              source={
+                item.restaurant
+                  ? { uri: item.restaurant.logo.url }
+                  : R.images.img_pizza_hut
+              }
             />
           </View>
           <View style={styleListRes.v_info}>
@@ -72,7 +99,7 @@ const ListOrderCurrent = (props: ListOrderProps) => {
                 {item?.restaurant?.name}
               </Text>
               <FstImage
-                style={{ width: 8, height: 8, marginLeft: 5 }}
+                style={styleListRes.image_tick}
                 source={R.images.ic_tick}
               />
             </View>
@@ -102,11 +129,24 @@ const ListOrderCurrent = (props: ListOrderProps) => {
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
+      onRefresh={onRefreshData}
+      refreshing={false}
       style={styleListRes.v_listProduct}
       data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
+      onEndReachedThreshold={0.1}
+      onMomentumScrollBegin={onMomentumScrollBegin}
+      onEndReached={handleLoadMore}
+      ListFooterComponent={
+        isLoadMore ? (
+          <ActivityIndicator
+            color={colors.colorDefault.placeHolder}
+            style={styleListRes.v_load_more}
+          />
+        ) : null
+      }
     />
   )
 }
@@ -114,6 +154,9 @@ const ListOrderCurrent = (props: ListOrderProps) => {
 export default ListOrderCurrent
 
 const styleListRes = StyleSheet.create({
+  v_load_more: {
+    marginVertical: 15,
+  },
   image_tick: { width: 8, height: 8, marginLeft: 5 },
   v_row2: {
     flexDirection: 'row',

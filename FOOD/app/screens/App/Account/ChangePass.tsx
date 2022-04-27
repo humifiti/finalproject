@@ -3,6 +3,7 @@ import RNButton from '@app/components/RNButton'
 import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
 import { colors } from '@app/theme'
+import { showMessages } from '@app/utils/AlertHelper'
 import React, { memo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
@@ -13,13 +14,64 @@ import {
 } from 'react-native'
 
 const ChangePassWordScreenComponent = () => {
+  const [oldPassword, setOldPassword] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
+  const oldPassRef = useRef<RNTextInput>(null)
+  const oldPassInputRef = useRef<TextInput>(null)
   const passRef = useRef<RNTextInput>(null)
   const passInputRef = useRef<TextInput>(null)
   const confirmPassRef = useRef<RNTextInput>(null)
   const confirmPassInputRef = useRef<TextInput>(null)
+
+  const handleUpdatePass = () => {
+    let isValid = true
+    let inputRef = null
+
+    if (
+      oldPassword.trim() === '' ||
+      oldPassword.length < 6 ||
+      oldPassword.length > 55
+    ) {
+      oldPassRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = oldPassInputRef
+    }
+
+    if (password.trim() === '' || password.length < 6 || password.length > 55) {
+      passRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = passInputRef
+    }
+    if (
+      confirmPassword.trim() === '' ||
+      confirmPassword.length < 6 ||
+      password.length > 55
+    ) {
+      confirmPassRef.current?.onValidate()
+      isValid = false
+      if (!inputRef) inputRef = confirmPassInputRef
+    }
+
+    if (confirmPassword !== password) {
+      showMessages(
+        R.strings().notification,
+        R.strings().confirm_password_not_success
+      )
+      confirmPassInputRef.current?.focus()
+      return
+    }
+
+    if (!isValid) {
+      if (inputRef) inputRef.current?.focus()
+      return
+    }
+
+    const payload = {
+      password: password,
+    }
+  }
 
   return (
     <ScreenWrapper
@@ -44,14 +96,14 @@ const ChangePassWordScreenComponent = () => {
             <RNTextInput
               autoCapitalize="none"
               maxLength={16}
-              ref={passRef}
-              refs={passInputRef}
+              ref={oldPassRef}
+              refs={oldPassInputRef}
               title={'Old Password'}
               secureTextEntry
-              value={password}
+              value={oldPassword}
               placeholder={'Enter Old Password'}
               keyboardType="default"
-              onChangeText={setPassword}
+              onChangeText={setOldPassword}
               placeholderTextColor={colors.colorDefault.placeHolder}
               isRequire
               valueType="password"
@@ -88,7 +140,7 @@ const ChangePassWordScreenComponent = () => {
               containerStyle={styles.v_textInput}
             />
 
-            <RNButton onPress={() => {}} title={R.strings().confirm} />
+            <RNButton onPress={handleUpdatePass} title={R.strings().confirm} />
           </ScrollView>
         </KeyboardAvoidingView>
       }

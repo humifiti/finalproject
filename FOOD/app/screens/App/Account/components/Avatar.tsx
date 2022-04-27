@@ -1,8 +1,10 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React from 'react'
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
+import AccountApi from '../api/AccountApi'
 
 interface AvatarProps {
   onPress: (url: string) => void
@@ -27,11 +29,29 @@ const Avatar = (props: AvatarProps) => {
       ) {
         return
       }
-      onPress(
-        Platform.OS === 'ios'
-          ? result.assets[0].uri.replace('file://', '')
-          : result.assets[0].uri
-      )
+      showLoading()
+      const formData = new FormData()
+      formData.append('file', {
+        uri:
+          Platform.OS === 'ios'
+            ? result.assets[0].uri.replace('file://', '')
+            : result.assets[0].uri,
+        name: result.assets[0].fileName,
+        type: result.assets[0].type,
+      })
+      try {
+        const res = await AccountApi.uploadFile(formData)
+        onPress(res.data ? res.data.url : '')
+      } catch (error) {
+        console.error(error)
+      } finally {
+        hideLoading()
+      }
+      // onPress(
+      //   Platform.OS === 'ios'
+      //     ? result.assets[0].uri.replace('file://', '')
+      //     : result.assets[0].uri
+      // )
     } catch (error) {
       console.error(error)
     }

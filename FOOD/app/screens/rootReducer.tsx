@@ -1,4 +1,5 @@
 import SwitchNavigatorSlice from '@app/navigation/switchNavigatorSlice'
+import AccountSlice from './App/Account/slice/AccountSlice'
 import ListAddressSlice from './App/Account/slice/ListAddressSlice'
 import CartSlice from './App/Cart/slice/CartSlice'
 import ListOrderCurrentSlice from './App/Order/slice/ListOrderCurrentSlice'
@@ -16,6 +17,7 @@ const rootReducer = {
   listAddressReducer: ListAddressSlice,
   listOrderedReducer: ListOrderedSlice,
   listOrderCurrentReducer: ListOrderCurrentSlice,
+  accountReducer: AccountSlice,
   // authReducer: AuthReducer,
   // storeReducer: StoreReducer,
 }

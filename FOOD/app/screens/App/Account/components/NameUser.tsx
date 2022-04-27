@@ -1,28 +1,32 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
+import { useAppSelector } from '@app/store'
 import { fonts, styleView } from '@app/theme'
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 const NameUser = () => {
+  const userInfo = useAppSelector(state => state.accountReducer.data)
   return (
-    <TouchableOpacity
-      onPress={() => {
-        //NavigationUtil.navigate(SCREEN_ROUTER_APP.UPDATE_ACCOUNT)
-      }}
-      style={styles.ctn_v_name_user}
-    >
+    <TouchableOpacity onPress={() => {}} style={styles.ctn_v_name_user}>
       <View style={styles.v_name_contact}>
         <Text
           style={styles.txt_name_user}
-          children={'Nguyễn Thị Thanh Hường'}
+          children={`${userInfo?.user?.first_name} ${userInfo.user.last_name}`}
         />
         <View style={styles.v_phone}>
           <FstImage source={R.images.ic_phone} style={styles.ic_phone} />
-          <Text style={styles.rg16_gr8} children={'0795296216'} />
+          <Text style={styles.rg16_gr8} children={userInfo.user.phone} />
         </View>
       </View>
-      <FstImage source={R.images.img_account_default} style={styles.img_user} />
+      <FstImage
+        source={
+          !userInfo.user.avatar.url
+            ? R.images.img_account_default
+            : { uri: userInfo.user.avatar.url }
+        }
+        style={styles.img_user}
+      />
     </TouchableOpacity>
   )
 }

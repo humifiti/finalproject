@@ -3,6 +3,7 @@ import FstImage from '@app/components/FstImage/FstImage'
 import { SCREEN_ROUTER } from '@app/constant/Constant'
 import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
 import AsyncStorageService from '@app/service/AsyncStorage/AsyncStorageService'
+import { useAppSelector } from '@app/store'
 import { colors, fonts } from '@app/theme'
 import React, { useEffect } from 'react'
 import {
@@ -23,6 +24,7 @@ const AccountScreen = () => {
   useEffect(() => {
     return () => {}
   }, [])
+
   return (
     <SafeAreaView style={styles.v_container}>
       <ScrollView

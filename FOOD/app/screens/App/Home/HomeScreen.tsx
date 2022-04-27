@@ -23,12 +23,14 @@ import {
 } from 'react-native'
 import Geolocation from 'react-native-geolocation-service'
 import { useDispatch } from 'react-redux'
+import { getDataUserInfo } from '../Account/slice/AccountSlice'
 import HomeApi from './api/HomeApi'
 const { width } = Dimensions.get('window')
 const HomeScreen = () => {
   const dispatch = useDispatch()
   const [categoryId, setCategoryId] = useState(0)
   useEffect(() => {
+    getDataUser()
     requestPermission()
   }, [])
 
@@ -40,6 +42,13 @@ const HomeScreen = () => {
         PERMISSION_TYPE.coarse_location,
       ])
       getLocation()
+    }
+  }
+
+  const getDataUser = async () => {
+    const token = await AsyncStorageService.getToken()
+    if (token) {
+      dispatch(getDataUserInfo())
     }
   }
 

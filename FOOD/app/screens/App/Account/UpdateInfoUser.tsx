@@ -2,7 +2,10 @@ import R from '@app/assets/R'
 import RNButton from '@app/components/RNButton'
 import RNTextInput from '@app/components/RNTextInput'
 import ScreenWrapper from '@app/components/Screen/ScreenWrapper'
+import NavigationUtil from '@app/navigation/NavigationUtil'
+import { useAppSelector } from '@app/store'
 import { colors } from '@app/theme'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { memo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import {
@@ -11,20 +14,30 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native'
+import { useDispatch } from 'react-redux'
+import AccountApi from './api/AccountApi'
 import Avatar from './components/Avatar'
+import { getDataUserInfo } from './slice/AccountSlice'
 
 const UpdateInfoUserComponent = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [profileImage, setProfileImage] = useState<string>('')
-  const [firstName, setFirstName] = useState<string>('')
-  const [lastName, setLastName] = useState<string>('')
-  const [phone, setPhone] = useState<string>('')
+  const userInfo = useAppSelector(state => state.accountReducer.data)
+  const [profileImage, setProfileImage] = useState<string>(
+    userInfo.user.avatar ? userInfo.user.avatar.url : ''
+  )
+  const [firstName, setFirstName] = useState<string>(
+    userInfo.user.first_name ? userInfo.user.first_name : ''
+  )
+  const [lastName, setLastName] = useState<string>(
+    userInfo.user.last_name ? userInfo.user.last_name : ''
+  )
+  const [phone, setPhone] = useState<string>(userInfo.user.phone)
   const firstNameRef = useRef<RNTextInput>(null)
   const firstNameInputRef = useRef<TextInput>(null)
   const lastNameRef = useRef<RNTextInput>(null)
   const lastNameInputRef = useRef<TextInput>(null)
   const phoneRef = useRef<RNTextInput>(null)
   const phoneInputRef = useRef<TextInput>(null)
+  const dispatch = useDispatch()
 
   const handleRegister = async () => {
     let isValid = true
@@ -53,28 +66,22 @@ const UpdateInfoUserComponent = () => {
       return
     }
 
-    // const payload = {
-    //   first_name: firstName,
-    //   last_name: lastName,
-    //   phone: phone,
-    //   password: password,
-    // }
-
-    // try {
-    //   setIsLoading(true)
-    //   await AuthApi.register(payload)
-    //   setIsLoading(false)
-    //   NavigationUtil.navigate(SCREEN_ROUTER_AUTH.OTP, { phone: phone })
-    // } catch (error: any) {
-    //   setIsLoading(false)
-    //   if (error?.response?.data.message === 'Phone number was not activated') {
-    //     await AuthApi.resendOtp({
-    //       phone: phone,
-    //     })
-    //     NavigationUtil.navigate(SCREEN_ROUTER_AUTH.OTP, { phone: phone })
-    //   }
-    //   reactotron.log!(error?.response?.data.message)
-    // }
+    const payload = {
+      last_name: lastName,
+      first_name: firstName,
+      avatar: {
+        url: profileImage,
+      },
+    }
+    showLoading()
+    try {
+      await AccountApi.updateProfile(payload)
+      dispatch(getDataUserInfo())
+      NavigationUtil.goBack()
+    } catch (error: any) {
+    } finally {
+      hideLoading()
+    }
   }
 
   return (
@@ -83,7 +90,6 @@ const UpdateInfoUserComponent = () => {
       color="black"
       backgroundHeader="white"
       back
-      dialogLoading={isLoading}
       forceInset={['left']}
       titleHeader={'My profile'}
       children={
@@ -143,6 +149,7 @@ const UpdateInfoUserComponent = () => {
               placeholderTextColor={colors.colorDefault.placeHolder}
               valueType="phone"
               isRequire
+              editable={false}
             />
 
             <RNButton onPress={handleRegister} title={'Update'} />

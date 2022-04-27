@@ -3,8 +3,12 @@ import FstImage from '@app/components/FstImage/FstImage'
 import { DEFAULT_PARAMS } from '@app/constant/Constant'
 import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
+import DateUtil from '@app/utils/DateUtil'
+import { formatNumber } from '@app/utils/Format'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
+  ActivityIndicator,
   FlatList,
   Platform,
   StyleSheet,
@@ -20,7 +24,7 @@ interface ListOrderProps {
 }
 const ListOrdered = (props: ListOrderProps) => {
   const dispatch = useDispatch()
-  const { isLoading, isError, data } = useAppSelector(
+  const { isLoading, isError, data, isLastPage, isLoadMore } = useAppSelector(
     state => state.listOrderedReducer
   )
 
@@ -28,6 +32,8 @@ const ListOrdered = (props: ListOrderProps) => {
     page: DEFAULT_PARAMS.PAGE,
     limit: DEFAULT_PARAMS.LIMIT,
   })
+
+  var onEndReachedCalledDuringMomentum = true
 
   useEffect(() => {
     getData()
@@ -37,7 +43,33 @@ const ListOrdered = (props: ListOrderProps) => {
   const getData = () => {
     dispatch(getListOrdered(body))
   }
+
+  const onRefreshData = () => {
+    setBody({
+      ...body,
+      page: DEFAULT_PARAMS.PAGE,
+    })
+  }
   const { type } = props
+
+  const onMomentumScrollBegin = () => {
+    onEndReachedCalledDuringMomentum = false
+  }
+
+  const handleLoadMore = () => {
+    if (!onEndReachedCalledDuringMomentum && !isLastPage && !isLoadMore) {
+      setBody({
+        ...body,
+        page: body.page + 1,
+      })
+    }
+  }
+
+  if (isLoading) {
+    showLoading()
+  } else {
+    hideLoading()
+  }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity style={styleListRes.v_container}>
@@ -45,22 +77,28 @@ const ListOrdered = (props: ListOrderProps) => {
           <View style={styleListRes.v_item}>
             <FstImage
               style={styleListRes.image}
-              source={R.images.img_pizza_hut}
+              source={
+                item.restaurant
+                  ? { uri: item.restaurant.logo.url }
+                  : R.images.img_pizza_hut
+              }
             />
           </View>
           <View style={styleListRes.v_info}>
             <View style={styleListRes.v_row}>
-              <Text style={styleListRes.txt_time}>20 Jun, 10:30</Text>
-              <View style={styleListRes.v_dot} />
-              <Text style={styleListRes.txt_count}>3 item</Text>
+              <Text style={styleListRes.txt_time}>
+                {DateUtil.formatDateTime(item.created_at)}
+              </Text>
               <Text style={{ ...fonts.regular16, color: colors.primary }}>
-                $15.30
+                {`${formatNumber(item.total_price)}đ`}
               </Text>
             </View>
             <View style={styleListRes.v_name}>
-              <Text style={{ ...fonts.semi_bold14 }}>Pizza Hut</Text>
+              <Text style={{ ...fonts.semi_bold14 }}>
+                {item?.restaurant?.name}
+              </Text>
               <FstImage
-                style={{ width: 8, height: 8, marginLeft: 5 }}
+                style={styleListRes.img_tick}
                 source={R.images.ic_tick}
               />
             </View>
@@ -88,11 +126,24 @@ const ListOrdered = (props: ListOrderProps) => {
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
+      onRefresh={onRefreshData}
+      refreshing={false}
       style={styleListRes.v_listProduct}
       data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
+      onEndReachedThreshold={0.1}
+      onMomentumScrollBegin={onMomentumScrollBegin}
+      onEndReached={handleLoadMore}
+      ListFooterComponent={
+        isLoadMore ? (
+          <ActivityIndicator
+            color={colors.colorDefault.placeHolder}
+            style={styleListRes.v_load_more}
+          />
+        ) : null
+      }
     />
   )
 }
@@ -100,6 +151,14 @@ const ListOrdered = (props: ListOrderProps) => {
 export default ListOrdered
 
 const styleListRes = StyleSheet.create({
+  v_load_more: {
+    marginVertical: 15,
+  },
+  img_tick: {
+    width: 8,
+    height: 8,
+    marginLeft: 5,
+  },
   v_row2: {
     flexDirection: 'row',
   },
@@ -163,6 +222,7 @@ const styleListRes = StyleSheet.create({
     color: '#9796A1',
     fontWeight: '400',
     marginRight: 10,
+    flex: 1,
   },
   v_dot: {
     width: 4,
