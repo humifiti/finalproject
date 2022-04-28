@@ -54,6 +54,7 @@ const images = {
   ic_unchecked2: require('./images/ic_unchecked2.png'),
   img_account_default: require('./images/img_account_default.png'),
   img_avatar: require('./images/img_avatar.png'),
+  img_avatar_shipper: require('./images/img_avatar_shipper.png'),
   img_back: require('./images/img_back.png'),
   img_change_pass: require('./images/img_change_pass.png'),
   img_construction_example: require('./images/img_construction_example.png'),

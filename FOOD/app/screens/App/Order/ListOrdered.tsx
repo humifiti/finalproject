@@ -1,6 +1,7 @@
 import R from '@app/assets/R'
 import FstImage from '@app/components/FstImage/FstImage'
-import { DEFAULT_PARAMS } from '@app/constant/Constant'
+import { DEFAULT_PARAMS, SCREEN_ROUTER_APP } from '@app/constant/Constant'
+import NavigationUtil from '@app/navigation/NavigationUtil'
 import { useAppSelector } from '@app/store'
 import { colors, dimensions, fonts } from '@app/theme'
 import DateUtil from '@app/utils/DateUtil'
@@ -72,7 +73,14 @@ const ListOrdered = (props: ListOrderProps) => {
   }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
-      <TouchableOpacity style={styleListRes.v_container}>
+      <TouchableOpacity
+        onPress={() => {
+          NavigationUtil.navigate(SCREEN_ROUTER_APP.ORDER_DETAIL, {
+            id: item.id,
+          })
+        }}
+        style={styleListRes.v_container}
+      >
         <View style={styleListRes.v_row2}>
           <View style={styleListRes.v_item}>
             <FstImage

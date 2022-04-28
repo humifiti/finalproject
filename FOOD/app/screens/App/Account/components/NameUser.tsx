@@ -21,7 +21,7 @@ const NameUser = () => {
       </View>
       <FstImage
         source={
-          !userInfo.user.avatar.url
+          !userInfo.user.avatar
             ? R.images.img_account_default
             : { uri: userInfo.user.avatar.url }
         }
