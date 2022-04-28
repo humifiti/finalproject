@@ -1,53 +1,49 @@
 /* eslint-disable no-shadow */
-/* eslint-disable react-native/no-inline-styles */
 import R from '@app/assets/R'
 import {
   MAIN_TAB_CUSTOMER,
   SCREEN_ROUTER,
   SCREEN_ROUTER_APP,
 } from '@app/constant/Constant'
-import { navigateSwitch } from '@app/navigation/switchNavigatorSlice'
 import AccountScreen from '@app/screens/App/Account/AccountScreen'
 import CartScreen from '@app/screens/App/Cart/CartScreen'
+import FavoriteScreen from '@app/screens/App/Favorite/FavoriteScreen'
 import HomeScreen from '@app/screens/App/Home/HomeScreen'
 import ProductScreen from '@app/screens/App/Product/ProductScreen'
-import { colors } from '@app/theme'
-import { showConfirm } from '@app/utils/AlertHelper'
-import AsyncStorage from '@react-native-community/async-storage'
 import {
   BottomTabBar,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import React from 'react'
-import { StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { getBottomSpace } from 'react-native-iphone-x-helper'
-import { useDispatch } from 'react-redux'
 import reactotron from 'reactotron-react-native'
 import NavigationUtil from '../NavigationUtil'
 const Tab = createBottomTabNavigator()
 const {
   ic_home,
-  ic_product,
   ic_cart,
   ic_profile,
   ic_profile_focus,
   ic_home_focus,
   ic_cart_focus,
+  ic_favorite,
+  ic_favorite_focus,
 } = R.images
 
-const { HOME, PRODUCT, CART, USER } = MAIN_TAB_CUSTOMER
+const { HOME, FAVORITE, CART, USER } = MAIN_TAB_CUSTOMER
 
 const mainTabCustomer = {
   [HOME]: HomeScreen,
-  [PRODUCT]: ProductScreen,
+  [FAVORITE]: FavoriteScreen,
   [CART]: CartScreen,
   [USER]: AccountScreen,
 }
 
 const mainTabAdmin = {
-  [PRODUCT]: ProductScreen,
+  [FAVORITE]: ProductScreen,
   [CART]: CartScreen,
   [USER]: AccountScreen,
 }
@@ -59,37 +55,19 @@ const MAIN_TAB = {
 
 const tabBarIcon = {
   [HOME]: ic_home,
-  [PRODUCT]: ic_product,
+  [FAVORITE]: ic_favorite,
   [CART]: ic_cart,
   [USER]: ic_profile,
 }
 
 const tabBarIconFocus = {
   [HOME]: ic_home_focus,
-  [PRODUCT]: ic_home_focus,
+  [FAVORITE]: ic_favorite_focus,
   [CART]: ic_cart_focus,
   [USER]: ic_profile_focus,
 }
 
-const tabBarLabel = {
-  [HOME]: R.strings().home,
-  [PRODUCT]: R.strings().product,
-  [CART]: R.strings().cart,
-  [USER]: R.strings().account,
-}
-
-const styles = StyleSheet.create({
-  tab_bar_icon: {
-    width: 20,
-    height: 20,
-  },
-  txtLabel: {
-    fontSize: 20,
-  },
-})
-
 export const MainTab = (route: any) => {
-  const dispatch = useDispatch()
   const routeName = getFocusedRouteNameFromRoute(route)
   reactotron.log!('routeName', routeName)
   return (
@@ -121,7 +99,6 @@ export const MainTab = (route: any) => {
           )
         },
         tabBarLabel: ({ focused }) => {
-          const color = focused ? colors.primary : colors.focus
           return <></>
         },
         tabBarButton: props => {
@@ -129,8 +106,6 @@ export const MainTab = (route: any) => {
             <TouchableOpacity
               {...props}
               onPress={async e => {
-                const token = await AsyncStorage.getItem('token')
-
                 if (route.name === MAIN_TAB_CUSTOMER.CART) {
                   NavigationUtil.navigate(SCREEN_ROUTER_APP.CART)
                   return

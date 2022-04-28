@@ -25,6 +25,8 @@ const images = {
   ic_example_category: require('./images/ic_example_category.png'),
   ic_eye: require('./images/ic_eye.png'),
   ic_eye_hide: require('./images/ic_eye_hide.png'),
+  ic_favorite: require('./images/ic_favorite.png'),
+  ic_favorite_focus: require('./images/ic_favorite_focus.png'),
   ic_fillter: require('./images/ic_fillter.png'),
   ic_heart: require('./images/ic_heart.png'),
   ic_home: require('./images/ic_home.png'),

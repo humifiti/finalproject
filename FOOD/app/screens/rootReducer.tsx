@@ -2,6 +2,8 @@ import SwitchNavigatorSlice from '@app/navigation/switchNavigatorSlice'
 import AccountSlice from './App/Account/slice/AccountSlice'
 import ListAddressSlice from './App/Account/slice/ListAddressSlice'
 import CartSlice from './App/Cart/slice/CartSlice'
+import ListFavoriteFoodSlice from './App/Favorite/slice/ListFavoriteFoodSlice'
+import ListFavoriteRestSlice from './App/Favorite/slice/ListFavoriteRestSlice'
 import ListOrderCurrentSlice from './App/Order/slice/ListOrderCurrentSlice'
 import ListOrderedSlice from './App/Order/slice/ListOrderedSlice'
 import locationReducer from './locationReducer'
@@ -17,9 +19,9 @@ const rootReducer = {
   listAddressReducer: ListAddressSlice,
   listOrderedReducer: ListOrderedSlice,
   listOrderCurrentReducer: ListOrderCurrentSlice,
+  listFavoriteFoodReducer: ListFavoriteFoodSlice,
+  listFavoritRestReducer: ListFavoriteRestSlice,
   accountReducer: AccountSlice,
-  // authReducer: AuthReducer,
-  // storeReducer: StoreReducer,
 }
 
 export default rootReducer

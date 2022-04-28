@@ -267,7 +267,7 @@ const ListFoodFeatured = ({ dataFeaturedFood }: { dataFeaturedFood: any }) => {
         <View style={styleListRes.v_price}>
           <Text style={{ ...fonts.semi_bold14 }}>{`${formatNumber(
             item?.price
-          )} $`}</Text>
+          )} đ`}</Text>
         </View>
       </TouchableOpacity>
     )

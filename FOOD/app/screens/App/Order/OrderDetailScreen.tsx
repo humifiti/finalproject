@@ -6,7 +6,7 @@ import { colors, dimensions, fonts } from '@app/theme'
 import DateUtil from '@app/utils/DateUtil'
 import { formatNumber } from '@app/utils/Format'
 import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Platform,
   ScrollView,
@@ -18,6 +18,7 @@ import {
 import OrderApi from './api/OrderApi'
 
 const OrderDetailScreen = (props: any) => {
+  const [data, setData] = useState(null)
   useEffect(() => {
     getDataOrder()
   }, [])
@@ -25,7 +26,8 @@ const OrderDetailScreen = (props: any) => {
   const getDataOrder = async () => {
     showLoading()
     try {
-      await OrderApi.getOrderDetail({ id: props.route.params.id })
+      const res = await OrderApi.getOrderDetail({ id: props.route.params.id })
+      setData(res.data)
     } catch (error) {
     } finally {
       hideLoading()
@@ -43,19 +45,24 @@ const OrderDetailScreen = (props: any) => {
         <ScrollView style={{ flex: 1, paddingHorizontal: 20 }}>
           <View style={styles.v_row2}>
             <View style={styles.v_item}>
-              <FstImage style={styles.image} source={R.images.img_pizza_hut} />
+              <FstImage
+                style={styles.image}
+                source={{ uri: data?.order?.restaurant?.logo?.url }}
+              />
             </View>
             <View style={styles.v_info}>
               <View style={styles.v_row}>
                 <Text style={styles.txt_time}>
-                  {DateUtil.formatDateTime(2000)}
+                  {DateUtil.formatDateTime(data?.order.created_at)}
                 </Text>
-                <Text style={{ ...fonts.regular16, color: colors.primary }}>
+                {/* <Text style={{ ...fonts.regular16, color: colors.primary }}>
                   {`${formatNumber(10000)}đ`}
-                </Text>
+                </Text> */}
               </View>
               <View style={styles.v_name}>
-                <Text style={{ ...fonts.semi_bold14 }}>{'alo'}</Text>
+                <Text style={{ ...fonts.semi_bold14 }}>
+                  {data?.order?.restaurant?.name}
+                </Text>
                 <FstImage style={styles.img_tick} source={R.images.ic_tick} />
               </View>
               <View style={styles.v_status}>
@@ -66,7 +73,7 @@ const OrderDetailScreen = (props: any) => {
           </View>
           <Text style={styles.txt_detail}>Details</Text>
           <Text style={styles.txt_address}>
-            6391 Elgin St. Celina, Delaware 10299
+            {data?.order?.restaurant?.address}
           </Text>
           <View style={styles.v_shipper}>
             <FstImage
@@ -87,6 +94,46 @@ const OrderDetailScreen = (props: any) => {
               <Text style={{ ...fonts.semi_bold14, color: 'white' }}>Call</Text>
             </TouchableOpacity>
           </View>
+          <Text style={styles.txt_detail}>Orders food</Text>
+          {data?.order_detail.map(item => (
+            <View style={{ flexDirection: 'row', marginTop: 14 }}>
+              <FstImage
+                style={styles.imageFood}
+                source={{ uri: item.food_origin.images.url }}
+              />
+              <View style={{ marginLeft: 15 }}>
+                <Text style={{ ...fonts.semi_bold18, flex: 1 }}>
+                  {item.food_origin.name}
+                </Text>
+                <Text style={styles.txt_$}>
+                  đ
+                  <Text style={styles.txt_price}>
+                    {formatNumber(item?.food_origin?.price)}
+                  </Text>
+                </Text>
+              </View>
+            </View>
+          ))}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 30,
+            }}
+          >
+            <Text style={{ ...fonts.semi_bold18, flex: 1 }}>Total</Text>
+            <Text style={{ ...fonts.semi_bold18 }}>
+              {`${formatNumber(data?.order?.total_price)} VND`}
+            </Text>
+          </View>
+          <View style={styles.v_button}>
+            <TouchableOpacity style={styles.button1}>
+              <Text style={{ ...fonts.semi_bold16 }}>Rate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button2}>
+              <Text style={styles.text}>Re-Order</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       }
     />
@@ -96,6 +143,20 @@ const OrderDetailScreen = (props: any) => {
 export default OrderDetailScreen
 
 const styles = StyleSheet.create({
+  txt_price: {
+    ...fonts.regular18,
+    color: 'black',
+  },
+  txt_$: {
+    ...fonts.semi_bold14,
+    color: colors.primary,
+    flex: 1,
+  },
+  imageFood: {
+    width: 92,
+    height: 92,
+    borderRadius: 16,
+  },
   v_icon_call: {
     backgroundColor: 'white',
     alignItems: 'center',
@@ -156,7 +217,7 @@ const styles = StyleSheet.create({
   v_button: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 25,
+    marginTop: 35,
     justifyContent: 'center',
   },
   v_listProduct: {
@@ -251,7 +312,7 @@ const styles = StyleSheet.create({
   button1: {
     backgroundColor: 'white',
     paddingVertical: 15,
-    width: dimensions.width / 2.6,
+    width: dimensions.width / 2.3,
     alignItems: 'center',
     borderRadius: 25,
     marginRight: 15,
@@ -268,7 +329,7 @@ const styles = StyleSheet.create({
   button2: {
     backgroundColor: colors.primary,
     paddingVertical: 15,
-    width: dimensions.width / 2.6,
+    width: dimensions.width / 2.3,
     alignItems: 'center',
     borderRadius: 25,
   },
