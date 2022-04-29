@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-native/no-inline-styles */
 import {
   FlatList,
   Platform,
@@ -7,13 +9,36 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FstImage from '@app/components/FstImage/FstImage'
 import { fonts } from '@app/theme'
 import R from '@app/assets/R'
+import HomeApi from './api/HomeApi'
+import Empty from '@app/components/Empty/Empty'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 
 const { width } = Dimensions.get('window')
-const ListRestaurant = () => {
+const ListRestaurant = (props: { search: string }) => {
+  const [data, setData] = useState([])
+  const refTimeout = useRef<any>()
+  useEffect(() => {
+    if (refTimeout.current) clearTimeout(refTimeout.current)
+
+    refTimeout.current = setTimeout(() => {
+      getListRest()
+    }, 500)
+  }, [props.search])
+
+  const getListRest = async () => {
+    showLoading()
+    try {
+      const res = await HomeApi.searchRest({ name: props.search })
+      setData(res.data)
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+  }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity style={styleListRes.v_container}>
@@ -22,18 +47,18 @@ const ListRestaurant = () => {
             <View style={styleListRes.v_item}>
               <FstImage
                 style={styleListRes.image}
-                source={R.images.img_pizza_hut}
+                source={{ uri: item?.logo?.url }}
               />
             </View>
             <View style={styleListRes.v_evaluate}>
-              <Text style={styleListRes.txt_evaluate}>4.5</Text>
+              <Text style={styleListRes.txt_evaluate}>{item?.rating}</Text>
             </View>
           </View>
         </View>
         <View
           style={{ flexDirection: 'row', alignItems: 'center', marginTop: 28 }}
         >
-          <Text style={{ ...fonts.semi_bold15 }}>Pizza Hut</Text>
+          <Text style={{ ...fonts.semi_bold15 }}>{item?.name}</Text>
           <FstImage
             style={{ width: 8, height: 8, marginLeft: 5 }}
             source={R.images.ic_tick}
@@ -57,13 +82,17 @@ const ListRestaurant = () => {
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
+      onRefresh={getListRest}
+      refreshing={false}
+      contentContainerStyle={{ paddingBottom: 50 }}
       style={styleListRes.v_listProduct}
       columnWrapperStyle={styleListRes.v_column}
-      data={['alo', 'alo', 'alo', 'alo', 'alo']}
+      data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       numColumns={2}
+      ListEmptyComponent={<Empty />}
     />
   )
 }

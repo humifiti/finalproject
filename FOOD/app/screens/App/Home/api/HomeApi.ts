@@ -5,4 +5,8 @@ export default {
     ApiClient.get(`/api/v1/restaurant`, { params: payload }),
   getFood: (payload: { order_by: string }) =>
     ApiClient.get(`/api/v1/food/all`, { params: payload }),
+  searchFood: (payload: { name: string }) =>
+    ApiClient.get(`/api/v1/food/all`, { params: payload }),
+  searchRest: (payload: { name: string }) =>
+    ApiClient.get(`/api/v1/restaurant`, { params: payload }),
 }

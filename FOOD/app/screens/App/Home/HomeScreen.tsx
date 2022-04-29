@@ -396,7 +396,10 @@ const ListFood = () => {
         />
         <View style={{ marginTop: 11, paddingLeft: 10 }}>
           <Text style={{ ...fonts.semi_bold15 }}>{item?.name}</Text>
-          <Text style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}>
+          <Text
+            numberOfLines={2}
+            style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}
+          >
             {item?.description}
           </Text>
         </View>

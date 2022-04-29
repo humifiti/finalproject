@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   FlatList,
   Platform,
@@ -6,26 +8,58 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FstImage from '@app/components/FstImage/FstImage'
 import { fonts } from '@app/theme'
 import R from '@app/assets/R'
+import HomeApi from './api/HomeApi'
+import { formatNumber } from '@app/utils/Format'
+import { hideLoading, showLoading } from '@app/utils/LoadingProgressRef'
 
 const { width } = Dimensions.get('window')
-const ListFood = () => {
+const ListFood = (props: { search: string }) => {
+  const [data, setData] = useState([])
+  const refTimeout = useRef<any>()
+  useEffect(() => {
+    if (refTimeout.current) clearTimeout(refTimeout.current)
+
+    refTimeout.current = setTimeout(() => {
+      getListFood()
+    }, 500)
+  }, [props.search])
+
+  const getListFood = async () => {
+    showLoading()
+    try {
+      const res = await HomeApi.searchFood({ name: props.search })
+      setData(res.data)
+    } catch (error) {
+    } finally {
+      hideLoading()
+    }
+  }
   const renderItem = useCallback(({ item }: { item: any }) => {
     return (
       <TouchableOpacity style={styleListFood.v_container}>
-        <FstImage style={styleListFood.image} source={R.images.img_food} />
-        <View style={{ marginTop: 11, alignItems: 'center' }}>
-          <Text style={{ ...fonts.semi_bold15 }}>Red n hot pizza</Text>
-          <Text style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}>
-            Spicy chicken, beef
+        <FstImage
+          style={styleListFood.image}
+          source={{ uri: item?.images?.url }}
+        />
+        <View style={{ marginTop: 11, paddingLeft: 5 }}>
+          <Text style={{ ...fonts.semi_bold15 }}> {item?.name}</Text>
+          <Text
+            numberOfLines={2}
+            style={{ ...fonts.regular12, color: '#5B5B5E', marginTop: 8 }}
+          >
+            {item?.description}
           </Text>
         </View>
         <View style={styleListFood.v_row}>
-          <Text style={{ ...fonts.semi_bold14 }}>9.50 $ </Text>
+          <Text style={{ ...fonts.semi_bold14 }}>{`${formatNumber(
+            item.price
+          )} đ`}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -33,9 +67,12 @@ const ListFood = () => {
   const keyExtractor = useCallback(item => `${item.id}`, [])
   return (
     <FlatList
+      onRefresh={getListFood}
+      refreshing={false}
+      contentContainerStyle={{ paddingBottom: 50 }}
       style={styleListFood.v_listProduct}
       columnWrapperStyle={styleListFood.v_column}
-      data={['alo', 'alo', 'alo', 'alo', 'alo']}
+      data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}

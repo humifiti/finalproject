@@ -24,7 +24,7 @@ const SearchScreen = () => {
       backgroundHeader="white"
       back
       forceInset={['left']}
-      titleHeader={'Search Food'}
+      titleHeader={'Search'}
       children={
         <View style={{ flex: 1, backgroundColor: 'white' }}>
           <SearchBar
@@ -50,10 +50,10 @@ const SearchScreen = () => {
             renderTabBar={() => <TabBarComponent />}
           >
             <Tab heading={'Food Item'}>
-              <ListFood />
+              <ListFood search={search} />
             </Tab>
             <Tab heading={'Restaurant'}>
-              <ListRestaurant />
+              <ListRestaurant search={search} />
             </Tab>
           </Tabs>
         </View>
