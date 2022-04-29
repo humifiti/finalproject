@@ -1,4 +1,5 @@
 import R from '@app/assets/R'
+import Empty from '@app/components/Empty/Empty'
 import FstImage from '@app/components/FstImage/FstImage'
 import { DEFAULT_PARAMS } from '@app/constant/Constant'
 import { useAppSelector } from '@app/store'
@@ -93,7 +94,7 @@ const FavoriteFood = () => {
       onRefresh={onRefreshData}
       refreshing={false}
       style={styles.v_listProduct}
-      data={['alo', 'alo', 'alo', 'alo']}
+      data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
@@ -108,6 +109,7 @@ const FavoriteFood = () => {
           />
         ) : null
       }
+      ListEmptyComponent={<Empty />}
     />
   )
 }
